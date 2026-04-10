@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
-  resources :tickets
+  resources :tickets do
+    resources :comments, only: [:create]
+  end
   resources :ticket_statuses
   resources :ticket_types
   resources :blocks

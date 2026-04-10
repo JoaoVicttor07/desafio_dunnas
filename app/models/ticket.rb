@@ -4,6 +4,8 @@ class Ticket < ApplicationRecord
   belongs_to :ticket_type
   belongs_to :ticket_status
 
+  has_many :comments, dependent: :destroy
+
   validates :description, presence: true
 
   validate :resolved_at_cannot_be_in_the_past, on: :update

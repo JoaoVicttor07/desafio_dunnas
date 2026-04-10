@@ -9,6 +9,33 @@
 
   <%= render @ticket %>
 
+  <hr>
+
+<h3>Comentários</h3>
+
+<div id="comments">
+  <% @ticket.comments.each do |comment| %>
+    <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+      <strong><%= comment.user.name %></strong> (<%= comment.created_at.strftime("%d/%m/%Y %H:%M") %>):
+      <p><%= comment.body %></p>
+    </div>
+  <% end %>
+</div>
+
+<div style="margin-top: 20px;">
+  <h4>Adicionar um Comentário</h4>
+  <%= form_with(model: [@ticket, Comment.new], local: true) do |form| %>
+    <div>
+      <%= form.text_area :body, rows: 3, style: "width: 100%;", placeholder: "Escreva sua mensagem..." %>
+    </div>
+    <div style="margin-top: 10px;">
+      <%= form.submit "Enviar Comentário" %>
+    </div>
+  <% end %>
+</div>
+
+<hr>
+
   <%= link_to "Edit this ticket", edit_ticket_path(@ticket), class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
   <%= link_to "Back to tickets", tickets_path, class: "w-full sm:w-auto text-center mt-2 sm:mt-0 sm:ml-2 rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
   <%= button_to "Destroy this ticket", @ticket, method: :delete, form_class: "sm:inline-block mt-2 sm:mt-0 sm:ml-2", class: "w-full rounded-md px-3.5 py-2.5 text-white bg-red-600 hover:bg-red-500 font-medium cursor-pointer", data: { turbo_confirm: "Are you sure?" } %>
