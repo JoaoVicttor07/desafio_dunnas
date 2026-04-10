@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_04_10_020147) do
+ActiveRecord::Schema[7.2].define(version: 2026_04_10_031646) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -34,6 +34,21 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_10_020147) do
     t.integer "sla_hours"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "tickets", force: :cascade do |t|
+    t.bigint "unit_id", null: false
+    t.bigint "user_id", null: false
+    t.bigint "ticket_type_id", null: false
+    t.bigint "ticket_status_id", null: false
+    t.text "description"
+    t.datetime "resolved_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["ticket_status_id"], name: "index_tickets_on_ticket_status_id"
+    t.index ["ticket_type_id"], name: "index_tickets_on_ticket_type_id"
+    t.index ["unit_id"], name: "index_tickets_on_unit_id"
+    t.index ["user_id"], name: "index_tickets_on_user_id"
   end
 
   create_table "units", force: :cascade do |t|
@@ -67,6 +82,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_10_020147) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "tickets", "ticket_statuses"
+  add_foreign_key "tickets", "ticket_types"
+  add_foreign_key "tickets", "units"
+  add_foreign_key "tickets", "users"
   add_foreign_key "units", "blocks"
   add_foreign_key "user_units", "units"
   add_foreign_key "user_units", "users"

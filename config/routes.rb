@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :tickets
   resources :ticket_statuses
   resources :ticket_types
   resources :blocks

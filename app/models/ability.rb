@@ -10,11 +10,11 @@ class Ability
       can :manage, :all
     elsif user.collaborator?
       can :read, :all
-    #  can :manage, Ticket
+      can :manage, Ticket
     else
       can :read, Block
       can :read, Unit
-    #  can :manage, Ticket, user_id: user.id
+      can :manage, Ticket, user_id: user.id
     end
   end
 end
