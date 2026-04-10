@@ -1,0 +1,10 @@
+<div id="<%= dom_id ticket_status %>" class="w-full sm:w-auto my-5 space-y-5">
+  <div>
+    <strong class="block font-medium mb-1">Name:</strong>
+    <%= ticket_status.name %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Is default:</strong>
+    <%= ticket_status.is_default? ? "Yes" : "No" %>
+  </div>
+</div>
