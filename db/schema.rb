@@ -10,9 +10,34 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_04_09_232048) do
+ActiveRecord::Schema[7.2].define(version: 2026_04_09_234849) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "blocks", force: :cascade do |t|
+    t.string "identification"
+    t.integer "floors_count"
+    t.integer "apartments_per_floor"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "units", force: :cascade do |t|
+    t.bigint "block_id", null: false
+    t.string "identifier"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["block_id"], name: "index_units_on_block_id"
+  end
+
+  create_table "user_units", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "unit_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["unit_id"], name: "index_user_units_on_unit_id"
+    t.index ["user_id"], name: "index_user_units_on_user_id"
+  end
 
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
@@ -27,4 +52,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_09_232048) do
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
+
+  add_foreign_key "units", "blocks"
+  add_foreign_key "user_units", "units"
+  add_foreign_key "user_units", "users"
 end
