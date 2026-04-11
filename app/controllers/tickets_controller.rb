@@ -1,11 +1,10 @@
 class TicketsController < ApplicationController
   before_action :authenticate_user!
   load_and_authorize_resource
-  before_action :set_ticket, only: %i[ show edit update destroy ]
 
   # GET /tickets or /tickets.json
   def index
-    @tickets = Ticket.accessible_by(current_ability).order(created_at: :desc)
+    @tickets = @tickets.order(created_at: :desc)
   end
 
   # GET /tickets/1 or /tickets/1.json
@@ -14,9 +13,7 @@ class TicketsController < ApplicationController
 
   # GET /tickets/new
   def new
-    @ticket = Ticket.new
     @ticket.user = current_user
-    @ticket.ticket_status = TicketStatus.find_by(is_default: true)
   end
 
   # GET /tickets/1/edit
@@ -25,10 +22,8 @@ class TicketsController < ApplicationController
 
   # POST /tickets or /tickets.json
   def create
-    @ticket = Ticket.new(ticket_params)
-
     @ticket.user = current_user
-    @ticket.ticket_status = TicketStatus.find_by(is_default: true)
+
 
     respond_to do |format|
       if @ticket.save
@@ -45,7 +40,7 @@ class TicketsController < ApplicationController
   def update
     respond_to do |format|
       if @ticket.update(ticket_params)
-        format.html { redirect_to @ticket, notice: "Ticket was successfully updated.", status: :see_other }
+        format.html { redirect_to @ticket, notice: "Chamado atualizado com sucesso.", status: :see_other }
         format.json { render :show, status: :ok, location: @ticket }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -59,19 +54,25 @@ class TicketsController < ApplicationController
     @ticket.destroy!
 
     respond_to do |format|
-      format.html { redirect_to tickets_path, notice: "Ticket was successfully destroyed.", status: :see_other }
+      format.html { redirect_to tickets_path, notice: "Chamado excluido com sucesso.", status: :see_other }
       format.json { head :no_content }
     end
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_ticket
-      @ticket = Ticket.find(params[:id])
+
+  def ticket_params
+    permitted =
+      if action_name == "create"
+        [:unit_id, :ticket_type_id, :description]
+      else
+        [:description]
+      end
+
+    if (current_user.administrator? || current_user.collaborator?) && action_name != "create"
+      permitted << :ticket_status_id
     end
 
-    # Only allow a list of trusted parameters through.
-    def ticket_params
-      params.require(:ticket).permit(:unit_id, :user_id, :ticket_type_id, :ticket_status_id, :description, :resolved_at)
-    end
+    params.require(:ticket).permit(*permitted, attachments: [])
+  end
 end

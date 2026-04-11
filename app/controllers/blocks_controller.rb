@@ -62,7 +62,7 @@ class BlocksController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_block
-      @block = Block.find(params[:id])
+      @block = Block.accessible_by(current_ability).find(params[:id])
     end
 
     # Only allow a list of trusted parameters through.

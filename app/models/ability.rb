@@ -8,13 +8,24 @@ class Ability
 
     if user.administrator?
       can :manage, :all
-    elsif user.collaborator?
-      can :read, :all
-      can :manage, Ticket
-    else
-      can :read, Block
-      can :read, Unit
-      can :manage, Ticket, user_id: user.id
+      return
     end
+
+    if user.collaborator?
+      # Colaborador: só gestão de chamados (escopo = condomínio inteiro)
+      can [:read, :update], Ticket
+      can [:read, :create], Comment
+      can :read, TicketType
+      can :read, TicketStatus
+      return
+    end
+
+    # Morador
+    can :read, Block
+    can :read, Unit, id: user.unit_ids
+    can :read, TicketType
+    can [:read, :create], Ticket, user_id: user.id
+    can [:read, :create], Comment, ticket: { user_id: user.id }
+
   end
 end
