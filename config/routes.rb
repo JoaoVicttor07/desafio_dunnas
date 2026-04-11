@@ -19,6 +19,7 @@ Rails.application.routes.draw do
   namespace :admin do
     resources :users
     resources :user_units, only: [:index, :create, :destroy]
+    get "units", to: "units#index"
   end
 
   # Defines the root path route ("/")

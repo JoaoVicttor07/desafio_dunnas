@@ -6,7 +6,7 @@ module Admin
       @user_unit = UserUnit.new
       @user_units = UserUnit.includes(:user, unit: :block).order(created_at: :desc)
       @residents = User.resident.order(:name)
-      @units = Unit.includes(:block).order(:block_id, :identifier)
+      @blocks = Block.order(:identification)
     end
 
     def create
