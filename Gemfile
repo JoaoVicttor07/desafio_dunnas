@@ -61,3 +61,5 @@ end
 gem "devise"
 
 gem "cancancan", "~> 3.6"
+
+gem "rails-i18n", "~> 7.0"

@@ -1,0 +1,31 @@
+pt-BR:
+  activerecord:
+    models:
+      user: "Usuário"
+      block: "Bloco/Torre"
+      unit: "Apartamento"
+      ticket: "Chamado"
+      comment: "Comentário"
+    attributes:
+      user:
+        name: "Nome"
+        email: "E-mail"
+        password: "Senha"
+        password_confirmation: "Confirmação de Senha"
+        remember_me: "Lembrar-me"
+      block:
+        identification: "Identificação"
+        floors_count: "Quantidade de Andares"
+        apartments_per_floor: "Apartamentos por Andar"
+      unit:
+        identifier: "Número do Apartamento"
+      ticket:
+        description: "Descrição"
+    errors:
+      models:
+        user:
+          attributes:
+            password:
+              too_short: "é muito curta (mínimo de %{count} caracteres)"
+            password_confirmation:
+              confirmation: "não coincide com a senha informada"
