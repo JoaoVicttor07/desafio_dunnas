@@ -93,22 +93,33 @@
       unitSelect.innerHTML = '<option value="">Carregando...</option>';
       unitSelect.disabled = true;
 
-      const response = await fetch(`/admin/units?block_id=${blockId}`, {
-        headers: { "Accept": "application/json" }
-      });
+      try {
+        const response = await fetch(`/admin/units?block_id=${encodeURIComponent(blockId)}`, {
+          headers: { "Accept": "application/json" }
+        });
 
-      const units = await response.json();
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
 
-      unitSelect.innerHTML = '<option value="">Selecione...</option>';
+        const units = await response.json();
 
-      units.forEach((u) => {
-        const option = document.createElement("option");
-        option.value = u.id;
-        option.text = u.label;
-        unitSelect.appendChild(option);
-      });
+        unitSelect.innerHTML = '<option value="">Selecione...</option>';
 
-      unitSelect.disabled = false;
+        units.forEach((u) => {
+          const option = document.createElement("option");
+          option.value = u.id;
+          option.text = u.label;
+          unitSelect.appendChild(option);
+        });
+
+        unitSelect.disabled = false;
+        
+      } catch (error) {
+        console.error("Failed to load units:", error);
+        unitSelect.innerHTML = '<option value="">Erro ao carregar unidades</option>';
+        unitSelect.disabled = true;
+      }
     }
 
     blockSelect.addEventListener("change", function() {
