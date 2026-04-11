@@ -1,9 +1,16 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
+open = TicketStatus.find_or_create_by!(name: "Aberto") do |s|
+  s.is_default = true
+  s.is_final = false
+end
+
+TicketStatus.find_or_create_by!(name: "Em andamento") do |s|
+  s.is_default = false
+  s.is_final = false
+end
+
+TicketStatus.find_or_create_by!(name: "Concluído") do |s|
+  s.is_default = false
+  s.is_final = true
+end
+
+TicketStatus.where.not(id: open.id).update_all(is_default: false)

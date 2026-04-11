@@ -50,14 +50,16 @@
   </div>
 
   <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-6">
-    <h4 class="text-lg font-bold text-gray-900 mb-4">Adicionar um Comentário</h4>
-    <%= form_with(model: [@ticket, Comment.new], local: true, class: "space-y-4") do |form| %>
-      <div>
-        <%= form.text_area :body, rows: 3, class: "block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder: "Escreva sua mensagem aqui..." %>
-      </div>
-      <div>
-        <%= form.submit "Enviar Mensagem", class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded transition-colors cursor-pointer" %>
-      </div>
+    <% if can?(:create, Comment.new(ticket: @ticket)) %>
+      <h4 class="text-lg font-bold text-gray-900 mb-4">Adicionar um Comentário</h4>
+      <%= form_with(model: [@ticket, Comment.new], local: true, class: "space-y-4") do |form| %>
+        <div>
+          <%= form.text_area :body, rows: 3, class: "block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder: "Escreva sua mensagem aqui..." %>
+        </div>
+        <div>
+          <%= form.submit "Enviar Mensagem", class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded transition-colors cursor-pointer" %>
+        </div>
+      <% end %>
     <% end %>
   </div>
 

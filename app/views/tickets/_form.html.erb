@@ -1,6 +1,17 @@
 <%
-  # A Mágica do Backend: Cria um dicionário agrupando apartamentos por ID do bloco
-  units_by_block = Unit.includes(:block).all.group_by(&:block_id).transform_values { |units| units.map { |u| [u.id, u.identifier] } }
+  units_scope =
+    if current_user&.resident?
+      current_user.units.includes(:block)
+    else
+      Unit.includes(:block)
+    end
+
+  blocks_scope = Block.joins(:units).where(units: { id: units_scope.select(:id) }).distinct
+
+  units_by_block =
+    units_scope
+      .group_by(&:block_id)
+      .transform_values { |units| units.map { |u| [u.id, u.identifier] } }
 %>
 
 <%= form_with(model: ticket, class: "space-y-6") do |form| %>
@@ -31,7 +42,7 @@
     
     <div>
       <%= label_tag :block_select, "Sua Torre / Bloco", class: "block mb-2 text-sm font-bold text-gray-800" %>
-      <%= select_tag :block_select, options_from_collection_for_select(Block.all, :id, :identification), prompt: "Selecione a torre...", id: "block-select", class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3 outline-none transition-all shadow-sm cursor-pointer" %>
+      <%= select_tag :block_select, options_from_collection_for_select(blocks_scope, :id, :identification), prompt: "Selecione o torre...", id: "block-select", class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3 outline-none transition-all shadow-sm cursor-pointer" %>
     </div>
 
     <div>
@@ -64,7 +75,6 @@
 
     const unitsData = <%= raw units_by_block.to_json %>;
 
-    // Escuta a mudança no select da Torre
     blockSelect.onchange = function() {
       const blockId = this.value;
 
@@ -78,7 +88,7 @@
         unitsData[blockId].forEach(function(unit) {
           const option = document.createElement("option");
           option.value = unit[0];
-          option.text = "Apto " + unit[1];
+          option.text = unit[1];
           unitSelect.appendChild(option);
         });
       } else {
