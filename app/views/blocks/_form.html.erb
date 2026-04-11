@@ -1,32 +1,37 @@
-<%= form_with(model: block, class: "contents") do |form| %>
+<%= form_with(model: block, class: "space-y-6") do |form| %>
   <% if block.errors.any? %>
-    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
-      <h2><%= pluralize(block.errors.count, "error") %> prohibited this block from being saved:</h2>
-
-      <ul class="list-disc ml-6">
-        <% block.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+    <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-r-lg">
+      <div class="flex">
+        <div class="ml-3">
+          <h3 class="text-sm font-bold text-red-800">Verifique os erros abaixo:</h3>
+          <ul class="mt-1 text-sm text-red-700 list-disc list-inside">
+            <% block.errors.each do |error| %>
+              <li><%= error.full_message %></li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
     </div>
   <% end %>
 
-  <div class="my-5">
-    <%= form.label :identification %>
-    <%= form.text_field :identification, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": block.errors[:identification].none?, "border-red-400 focus:outline-red-600": block.errors[:identification].any?}] %>
+  <div>
+    <%= form.label :identification, "Identificação (Ex: Torre A, Bloco 1)", class: "block mb-2 text-sm font-bold text-gray-800" %>
+    <%= form.text_field :identification, class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3 outline-none transition-all shadow-sm" %>
   </div>
 
-  <div class="my-5">
-    <%= form.label :floors_count %>
-    <%= form.number_field :floors_count, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": block.errors[:floors_count].none?, "border-red-400 focus:outline-red-600": block.errors[:floors_count].any?}] %>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+      <%= form.label :floors_count, "Quantidade de Andares", class: "block mb-2 text-sm font-bold text-gray-800" %>
+      <%= form.number_field :floors_count, class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3 outline-none transition-all shadow-sm" %>
+    </div>
+
+    <div>
+      <%= form.label :apartments_per_floor, "Apartamentos por Andar", class: "block mb-2 text-sm font-bold text-gray-800" %>
+      <%= form.number_field :apartments_per_floor, class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3 outline-none transition-all shadow-sm" %>
+    </div>
   </div>
 
-  <div class="my-5">
-    <%= form.label :apartments_per_floor %>
-    <%= form.number_field :apartments_per_floor, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": block.errors[:apartments_per_floor].none?, "border-red-400 focus:outline-red-600": block.errors[:apartments_per_floor].any?}] %>
-  </div>
-
-  <div class="inline">
-    <%= form.submit class: "w-full sm:w-auto rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
+  <div class="pt-4 flex justify-end">
+    <%= form.submit "Criar Bloco", class: "w-full md:w-auto px-8 py-3 text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg text-sm text-center transition-all cursor-pointer shadow-md" %>
   </div>
 <% end %>
