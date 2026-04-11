@@ -1,42 +1,67 @@
 <% content_for :title, "Showing ticket" %>
 
-<div class="md:w-2/3 w-full">
-  <% if notice.present? %>
-    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
-  <% end %>
-
-  <h1 class="font-bold text-4xl">Showing ticket</h1>
-
-  <%= render @ticket %>
-
-  <hr>
-
-<h3>Comentários</h3>
-
-<div id="comments">
-  <% @ticket.comments.each do |comment| %>
-    <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
-      <strong><%= comment.user.name %></strong> (<%= comment.created_at.strftime("%d/%m/%Y %H:%M") %>):
-      <p><%= comment.body %></p>
-    </div>
-  <% end %>
-</div>
-
-<div style="margin-top: 20px;">
-  <h4>Adicionar um Comentário</h4>
-  <%= form_with(model: [@ticket, Comment.new], local: true) do |form| %>
+<div class="max-w-4xl mx-auto mb-10 mt-6">
+  
+  <div class="flex justify-between items-center mb-6">
     <div>
-      <%= form.text_area :body, rows: 3, style: "width: 100%;", placeholder: "Escreva sua mensagem..." %>
+      <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">
+        Chamado #<%= @ticket.id.to_s.rjust(4, '0') %>
+      </h1>
+      <p class="text-gray-500 mt-1 font-medium"><%= @ticket.ticket_type.title %></p>
     </div>
-    <div style="margin-top: 10px;">
-      <%= form.submit "Enviar Comentário" %>
+    <div class="text-right">
+      <span class="px-4 py-2 inline-flex text-sm leading-5 font-bold rounded-full bg-blue-100 text-blue-800 mb-2">
+        <%= @ticket.ticket_status.name %>
+      </span>
+      <p class="text-sm text-gray-500 font-semibold">
+        <%= @ticket.unit.block.identification %> - Apto <%= @ticket.unit.identifier %>
+      </p>
     </div>
-  <% end %>
-</div>
+  </div>
 
-<hr>
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-8 border border-gray-200">
+    <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-200 flex justify-between">
+      <h3 class="text-lg leading-6 font-bold text-gray-900">Descrição do Problema</h3>
+      <span class="text-sm text-gray-500">Aberto por: <%= @ticket.user.name %></span>
+    </div>
+    <div class="px-4 py-5 sm:p-6 text-gray-700 whitespace-pre-wrap"><%= @ticket.description %></div>
+  </div>
 
-  <%= link_to "Edit this ticket", edit_ticket_path(@ticket), class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-  <%= link_to "Back to tickets", tickets_path, class: "w-full sm:w-auto text-center mt-2 sm:mt-0 sm:ml-2 rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-  <%= button_to "Destroy this ticket", @ticket, method: :delete, form_class: "sm:inline-block mt-2 sm:mt-0 sm:ml-2", class: "w-full rounded-md px-3.5 py-2.5 text-white bg-red-600 hover:bg-red-500 font-medium cursor-pointer", data: { turbo_confirm: "Are you sure?" } %>
+  <div class="mb-8">
+    <h3 class="text-xl font-bold text-gray-900 mb-4 border-b pb-2">Histórico da Conversa</h3>
+    
+    <div class="space-y-4">
+      <% if @ticket.comments.empty? %>
+        <p class="text-gray-500 italic text-sm bg-gray-50 p-4 rounded-lg text-center border border-dashed border-gray-300">
+          Nenhum comentário ainda. Inicie a conversa abaixo.
+        </p>
+      <% end %>
+
+      <% @ticket.comments.each do |comment| %>
+        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+          <div class="flex justify-between items-center mb-2">
+            <span class="font-bold text-blue-900"><%= comment.user.name %></span>
+            <span class="text-xs text-gray-400 font-mono"><%= comment.created_at.strftime("%d/%m/%Y às %H:%M") %></span>
+          </div>
+          <p class="text-gray-700 whitespace-pre-wrap"><%= comment.body %></p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-6">
+    <h4 class="text-lg font-bold text-gray-900 mb-4">Adicionar um Comentário</h4>
+    <%= form_with(model: [@ticket, Comment.new], local: true, class: "space-y-4") do |form| %>
+      <div>
+        <%= form.text_area :body, rows: 3, class: "block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder: "Escreva sua mensagem aqui..." %>
+      </div>
+      <div>
+        <%= form.submit "Enviar Mensagem", class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded transition-colors cursor-pointer" %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="flex space-x-4 border-t pt-4">
+    <%= link_to "← Voltar para Chamados", tickets_path, class: "text-gray-600 hover:text-gray-900 font-semibold" %>
+  </div>
 </div>

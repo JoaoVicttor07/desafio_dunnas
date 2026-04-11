@@ -5,7 +5,7 @@ class TicketsController < ApplicationController
 
   # GET /tickets or /tickets.json
   def index
-    @tickets = Ticket.all
+    @tickets = Ticket.accessible_by(current_ability).order(created_at: :desc)
   end
 
   # GET /tickets/1 or /tickets/1.json

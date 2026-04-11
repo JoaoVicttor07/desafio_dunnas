@@ -19,7 +19,23 @@
   </head>
 
   <body>
-    <main class="container mx-auto mt-28 px-5 flex">
+    <nav class="bg-blue-900 text-white p-4 shadow-md mb-8">
+      <div class="container mx-auto flex justify-between items-center">
+        <h1 class="text-2xl font-bold tracking-tight">Condomínio Dunnas</h1>
+        <div class="space-x-6 font-semibold">
+          <%= link_to "Blocos", blocks_path, class: "hover:text-blue-300 transition-colors" %>
+          <%= link_to "Chamados", tickets_path, class: "hover:text-blue-300 transition-colors" %>
+          
+          <% if user_signed_in? %>
+            <span class="text-gray-400 text-sm ml-4 border-l border-gray-600 pl-4">
+              Olá, <%= current_user.name %>
+            </span>
+            <% end %>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container mx-auto px-4">
       <%= yield %>
     </main>
   </body>

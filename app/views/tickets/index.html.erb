@@ -1,29 +1,52 @@
 <% content_for :title, "Tickets" %>
 
 <div class="w-full">
-  <% if notice.present? %>
-    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
-  <% end %>
-
-  <div class="flex justify-between items-center">
-    <h1 class="font-bold text-4xl">Tickets</h1>
-    <%= link_to "New ticket", new_ticket_path, class: "rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white block font-medium" %>
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Meus Chamados</h1>
+    <%= link_to "Novo Chamado", new_ticket_path, class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-sm transition-colors" %>
   </div>
 
-  <div id="tickets" class="min-w-full divide-y divide-gray-200 space-y-5">
-    <% if @tickets.any? %>
-      <% @tickets.each do |ticket| %>
-        <div class="flex flex-col sm:flex-row justify-between items-center pb-5 sm:pb-0">
-          <%= render ticket %>
-          <div class="w-full sm:w-auto flex flex-col sm:flex-row space-x-2 space-y-2">
-            <%= link_to "Show", ticket, class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-            <%= link_to "Edit", edit_ticket_path(ticket), class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-            <%= button_to "Destroy", ticket, method: :delete, class: "w-full sm:w-auto rounded-md px-3.5 py-2.5 text-white bg-red-600 hover:bg-red-500 font-medium cursor-pointer", data: { turbo_confirm: "Are you sure?" } %>
-          </div>
-        </div>
-      <% end %>
-    <% else %>
-      <p class="text-center my-10">No tickets found.</p>
+  <div class="bg-white shadow-md rounded-xl overflow-hidden border border-gray-200">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">ID</th>
+          <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Apartamento</th>
+          <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Problema</th>
+          <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+          <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Ações</th>
+        </tr>
+      </thead>
+      
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% @tickets.each do |ticket| %>
+          <tr class="hover:bg-gray-50 transition-colors">
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
+              # <%= ticket.id.to_s.rjust(4, '0') %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
+              <%= ticket.unit.block.identification %> - Apto <%= ticket.unit.identifier %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+              <%= ticket.ticket_type.title %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                <%= ticket.ticket_status.name %>
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-right">
+              <%= link_to "Ver Detalhes", ticket, class: "text-blue-600 hover:text-blue-900 font-semibold" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    
+    <% if @tickets.empty? %>
+      <div class="text-center py-10">
+        <p class="text-gray-500">Nenhum chamado encontrado.</p>
+      </div>
     <% end %>
   </div>
 </div>
