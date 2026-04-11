@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_04_10_163023) do
+ActiveRecord::Schema[7.2].define(version: 2026_04_11_064101) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -34,9 +34,11 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_10_163023) do
 
   create_table "ticket_statuses", force: :cascade do |t|
     t.string "name"
-    t.boolean "is_default"
+    t.boolean "is_default", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "is_final", default: false, null: false
+    t.index ["is_default"], name: "index_ticket_statuses_on_is_default_true", unique: true, where: "is_default"
   end
 
   create_table "ticket_types", force: :cascade do |t|
@@ -75,6 +77,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_10_163023) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["unit_id"], name: "index_user_units_on_unit_id"
+    t.index ["user_id", "unit_id"], name: "index_user_units_on_user_id_and_unit_id", unique: true
     t.index ["user_id"], name: "index_user_units_on_user_id"
   end
 
