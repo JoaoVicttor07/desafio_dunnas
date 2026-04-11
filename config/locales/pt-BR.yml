@@ -1,7 +1,0 @@
-pt-BR:
-  devise:
-    failure:
-      unauthenticated: "Para continuar, você precisa fazer login ou criar uma conta."
-    sessions:
-      signed_in: "Login efetuado com sucesso. Bem-vindo!"
-      signed_out: "Você saiu da sua conta com segurança."
