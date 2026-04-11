@@ -32,6 +32,10 @@
             <% if user_signed_in? %>
               <%= link_to "Blocos e Unidades", blocks_path, class: "px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-800 transition-colors" %>
               <%= link_to "Meus Chamados", tickets_path, class: "px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-800 transition-colors" %>
+              <% if current_user.administrator? %>
+                <%= link_to "Usuários", admin_users_path, class: "px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-800 transition-colors" %>
+                <%= link_to "Vínculos", admin_user_units_path, class: "px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-800 transition-colors" %>
+              <% end %>
               
               <div class="hidden sm:block border-l border-blue-700 h-6 mx-1"></div>
               
