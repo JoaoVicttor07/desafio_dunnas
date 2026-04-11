@@ -1,5 +1,6 @@
 class TicketsController < ApplicationController
   before_action :authenticate_user!
+  before_action :ensure_resident_has_units!, only: %i[new create]
   load_and_authorize_resource
 
   # GET /tickets or /tickets.json
@@ -23,8 +24,11 @@ class TicketsController < ApplicationController
   # POST /tickets or /tickets.json
   def create
     @ticket.user = current_user
-
-
+    if current_user.resident? && current_user.units.none?
+      redirect_to tickets_path, alert: "Você não possui unidade vinculada. Contate o administrador."
+      return
+    end
+    
     respond_to do |format|
       if @ticket.save
         format.html { redirect_to @ticket, notice: "Chamado aberto com sucesso!" }
@@ -60,6 +64,13 @@ class TicketsController < ApplicationController
   end
 
   private
+
+  def ensure_resident_has_units!
+    return unless current_user.resident?
+    return if current_user.units.exists?
+
+    redirect_to tickets_path, alert: "Você não possui unidade vinculada. Contate o administrador."
+  end
 
   def ticket_params
     permitted =

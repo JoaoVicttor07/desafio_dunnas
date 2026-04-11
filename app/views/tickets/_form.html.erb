@@ -14,6 +14,16 @@
       .transform_values { |units| units.map { |u| [u.id, u.identifier] } }
 %>
 
+<% no_units_linked = current_user&.resident? && units_scope.blank? %>
+
+<% if no_units_linked %>
+  <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6 rounded shadow-sm">
+    <p class="text-sm text-yellow-800 font-semibold">
+      Você não possui unidade vinculada. Contate o administrador.
+    </p>
+  </div>
+<% end %>
+
 <%= form_with(model: ticket, class: "space-y-6") do |form| %>
   
   <% if ticket.errors.any? %>
@@ -42,7 +52,14 @@
     
     <div>
       <%= label_tag :block_select, "Sua Torre / Bloco", class: "block mb-2 text-sm font-bold text-gray-800" %>
-      <%= select_tag :block_select, options_from_collection_for_select(blocks_scope, :id, :identification), prompt: "Selecione o torre...", id: "block-select", class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3 outline-none transition-all shadow-sm cursor-pointer" %>
+      <%= select_tag :block_select,
+        options_from_collection_for_select(blocks_scope, :id, :identification),
+        { prompt: "Selecione a torre..." },
+        {
+          id: "block-select",
+          disabled: no_units_linked,
+          class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3 outline-none transition-all shadow-sm cursor-pointer #{'opacity-60 cursor-not-allowed' if no_units_linked}"
+        } %>
     </div>
 
     <div>
@@ -53,16 +70,16 @@
 
   <div>
     <%= form.label :ticket_type_id, "Categoria do Problema", class: "block mb-2 text-sm font-bold text-gray-800" %>
-    <%= form.collection_select :ticket_type_id, TicketType.all, :id, :title, { prompt: "O que está acontecendo?" }, class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3 outline-none transition-all shadow-sm cursor-pointer" %>
+    <%= form.collection_select :ticket_type_id, TicketType.all, :id, :title, { prompt: "O que está acontecendo?" }, disabled: no_units_linked, class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3 outline-none transition-all shadow-sm cursor-pointer" %>
   </div>
 
   <div>
     <%= form.label :description, "Descrição Detalhada", class: "block mb-2 text-sm font-bold text-gray-800" %>
-    <%= form.text_area :description, rows: 5, class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-4 outline-none transition-all shadow-sm resize-y", placeholder: "Explique o problema em detalhes. Ex: A torneira da pia da cozinha não para de pingar desde ontem..." %>
+    <%= form.text_area :description, rows: 5, disabled: no_units_linked, class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-4 outline-none transition-all shadow-sm resize-y", placeholder: "Explique o problema em detalhes. Ex: A torneira da pia da cozinha não para de pingar desde ontem..." %>
   </div>
 
   <div class="pt-4 flex justify-end">
-    <%= form.submit "Salvar Chamado", class: "w-full md:w-auto px-8 py-3 text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg text-sm text-center transition-all cursor-pointer shadow-md hover:shadow-lg" %>
+    <%= form.submit "Salvar Chamado", disabled: no_units_linked, class: "w-full md:w-auto px-8 py-3 text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg text-sm text-center transition-all shadow-md hover:shadow-lg #{'opacity-60 cursor-not-allowed' if no_units_linked}" %>
   </div>
 <% end %>
 
@@ -72,6 +89,7 @@
     const unitSelect = document.getElementById("unit-select");
 
     if (!blockSelect || !unitSelect) return;
+    if (blockSelect.disabled) return;
 
     const unitsData = <%= raw units_by_block.to_json %>;
 
