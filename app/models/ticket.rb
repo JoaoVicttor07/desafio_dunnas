@@ -5,9 +5,7 @@ class Ticket < ApplicationRecord
   belongs_to :ticket_status
 
   has_many :comments, dependent: :destroy
-
-  # Ative quando instalar Active Storage
-  # has_many_attached :attachments
+  has_many_attached :attachments
 
   validates :description, presence: true
   validates :ticket_status, presence: true
