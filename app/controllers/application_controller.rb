@@ -5,6 +5,11 @@ class ApplicationController < ActionController::Base
     redirect_to root_path, alert: "Acesso Negado: Você não tem permissão para acessar esta página."
   end
 
+  def after_sign_in_path_for(resource)
+    return tickets_path if resource.respond_to?(:collaborator?) && resource.collaborator?
+    super
+  end
+  
   protected
 
   def configure_permitted_parameters
