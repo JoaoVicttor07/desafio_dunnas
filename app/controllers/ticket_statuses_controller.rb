@@ -67,6 +67,6 @@ class TicketStatusesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def ticket_status_params
-      params.require(:ticket_status).permit(:name, :is_default)
+      params.require(:ticket_status).permit(:name, :is_default, :is_final)
     end
 end
