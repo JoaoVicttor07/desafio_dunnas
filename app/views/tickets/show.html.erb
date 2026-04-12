@@ -27,6 +27,23 @@
     <div class="px-4 py-5 sm:p-6 text-gray-700 whitespace-pre-wrap"><%= @ticket.description %></div>
   </div>
 
+  <% if can?(:update, @ticket) %>
+          <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-4 mb-6">
+            <h3 class="text-sm font-bold text-gray-900 mb-3">Atualizar Status</h3>
+
+            <%= form_with(model: @ticket, local: true, class: "flex flex-col sm:flex-row gap-3 items-start sm:items-end") do |f| %>
+              <div class="w-full sm:w-72">
+                <%= f.label :ticket_status_id, "Status", class: "block mb-2 text-sm font-bold text-gray-800" %>
+                <%= f.collection_select :ticket_status_id, TicketStatus.order(:name), :id, :name, {}, class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-3" %>
+              </div>
+
+              <div>
+                <%= f.submit "Salvar", class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-sm transition-colors" %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+
   <div class="mb-8">
     <h3 class="text-xl font-bold text-gray-900 mb-4 border-b pb-2">Histórico da Conversa</h3>
     
