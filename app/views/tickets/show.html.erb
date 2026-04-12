@@ -32,8 +32,20 @@
       <h3 class="text-sm font-bold text-gray-900 mb-3">Anexos</h3>
       <ul class="list-disc list-inside text-sm">
         <% @ticket.attachments.each do |att| %>
-          <li>
-            <%= link_to att.filename.to_s, url_for(att), class: "text-blue-600 hover:text-blue-900 font-semibold" %>
+          <li class="mb-3">
+            <% if att.image? %>
+              <div class="mb-2">
+                <%= image_tag att.variant(resize_to_limit: [600, 600]), 
+                loading: "lazy",
+                class: "max-w-full rounded-lg border border-gray-200" %>
+              </div>
+            <% end %>
+
+            <%= link_to att.filename.to_s, 
+              url_for(att), 
+              target: "_blank",
+              rel: "noopener",
+              class: "text-blue-600 hover:text-blue-900 font-semibold" %>
           </li>
         <% end %>
       </ul>
