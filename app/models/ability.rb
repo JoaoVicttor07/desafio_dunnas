@@ -20,8 +20,7 @@ class Ability
       return
     end
 
-    # Morador
-    can :read, Block
+    # Morador: só gestão de seus próprios chamados
     can :read, Unit, id: user.unit_ids
     can :read, TicketType
     can [:read, :create], Ticket, user_id: user.id

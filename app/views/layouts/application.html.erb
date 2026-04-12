@@ -26,17 +26,18 @@
           
           <div class="flex-shrink-0 font-extrabold text-2xl tracking-tight text-center sm:text-left">
             <%= link_to "Condomínio Dunnas", 
-              (user_signed_in? && current_user.collaborator? ? tickets_path : root_path), 
+              (user_signed_in? && current_user.administrator? ? tickets_path : root_path), 
               class: "hover:text-blue-200 transition-colors" %>
           </div>
 
           <div class="flex flex-wrap justify-center items-center gap-3">
             <% if user_signed_in? %>
-              <% unless current_user.collaborator? %>
+              <% unless current_user.administrator? %>
                 <%= link_to "Blocos e Unidades", blocks_path, class: "px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-800 transition-colors" %>
               <% end %>
 
               <%= link_to "Meus Chamados", tickets_path, class: "px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-800 transition-colors" %>
+
               <% if current_user.administrator? %>
                 <%= link_to "Usuários", admin_users_path, class: "px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-800 transition-colors" %>
                 <%= link_to "Vínculos", admin_user_units_path, class: "px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-800 transition-colors" %>
