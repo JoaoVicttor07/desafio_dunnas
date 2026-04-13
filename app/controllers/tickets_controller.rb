@@ -5,7 +5,23 @@ class TicketsController < ApplicationController
 
   # GET /tickets or /tickets.json
   def index
-    @tickets = @tickets.order(created_at: :desc)
+    @filters = params.permit(:ticket_status_id, :ticket_type_id, :unit_id)
+
+    @tickets = @tickets
+    .includes(:ticket_status, :ticket_type, unit: :block)
+    .order(created_at: :desc)
+
+    if @filters[:ticket_status_id].present?
+      @tickets = @tickets.where(ticket_status_id: @filters[:ticket_status_id])
+    end
+
+    if @filters[:ticket_type_id].present?
+      @tickets = @tickets.where(ticket_type_id: @filters[:ticket_type_id])
+    end
+
+    if @filters[:unit_id].present?
+      @tickets = @tickets.where(unit_id: @filters[:unit_id])
+    end
   end
 
   # GET /tickets/1 or /tickets/1.json
