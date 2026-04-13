@@ -19,7 +19,7 @@ class TicketsController < ApplicationController
       @tickets = @tickets.where(ticket_type_id: @filters[:ticket_type_id])
     end
 
-    if @filters[:unit_id].present?
+    if current_user.resident? && @filters[:unit_id].present?
       @tickets = @tickets.where(unit_id: @filters[:unit_id])
     end
   end
