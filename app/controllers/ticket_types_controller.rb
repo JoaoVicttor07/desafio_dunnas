@@ -67,6 +67,6 @@ class TicketTypesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def ticket_type_params
-      params.require(:ticket_type).permit(:title, :sla_hours)
+      params.require(:ticket_type).permit(:title, :sla_hours, collaborator_ids: [])
     end
 end
