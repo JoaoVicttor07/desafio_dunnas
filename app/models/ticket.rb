@@ -7,14 +7,19 @@ class Ticket < ApplicationRecord
   has_many :comments, dependent: :destroy
   has_many_attached :attachments
 
+  attr_accessor :acting_user, :reopen_reason
+
   validates :description, presence: true
   validates :ticket_status, presence: true
 
   before_validation :set_default_status, on: :create
+  before_validation :sync_resolved_at_with_status
+
   validate :resident_unit_must_be_linked, on: :create
   validate :resolved_at_only_when_final
+  validate :validate_reopen_conditions, on: :update
 
-  before_save :sync_resolved_at_with_status
+  after_update_commit :log_reopen_action, if: :reopened?
 
   private
 
@@ -44,7 +49,46 @@ class Ticket < ApplicationRecord
   def resolved_at_only_when_final
     return if resolved_at.blank?
     return if ticket_status&.is_final?
-
     errors.add(:resolved_at, "só pode existir quando o chamado estiver concluído")
+  end
+
+  def currently_reopening?
+    return false unless ticket_status_id_changed?
+
+    old_status_id, new_status_id = ticket_status_id_change
+    old_status = TicketStatus.find_by(id: old_status_id)
+    new_status = TicketStatus.find_by(id: new_status_id)
+
+    old_status&.is_final? && !new_status&.is_final?
+  end
+
+  def validate_reopen_conditions
+    return unless currently_reopening?
+
+    unless acting_user&.administrator?
+      errors.add(:base, "Apenas administradores podem reabrir chamados concluídos.")
+      return
+    end
+
+    if reopen_reason.blank?
+      errors.add(:reopen_reason, "(Motivo) é obrigatório ao reabrir um chamado.")
+    end
+  end
+
+  def reopened?
+    return false unless saved_change_to_ticket_status_id?
+    
+    old_status_id, new_status_id = saved_change_to_ticket_status_id
+    old_status = TicketStatus.find_by(id: old_status_id)
+    new_status = TicketStatus.find_by(id: new_status_id)
+
+    old_status&.is_final? && !new_status&.is_final?
+  end
+
+  def log_reopen_action
+    comments.create!(
+      user: acting_user || user,
+      body: "⚠️ Ação Automática: Chamado REABERTO.\nMotivo: #{reopen_reason}"
+    )
   end
 end

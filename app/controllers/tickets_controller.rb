@@ -88,12 +88,14 @@ class TicketsController < ApplicationController
 
   # PATCH/PUT /tickets/1 or /tickets/1.json
   def update
+    @ticket.acting_user = current_user
+
     respond_to do |format|
       if @ticket.update(ticket_params)
         format.html { redirect_to @ticket, notice: "Chamado atualizado com sucesso.", status: :see_other }
         format.json { render :show, status: :ok, location: @ticket }
       else
-        format.html { render :edit, status: :unprocessable_entity }
+        format.html { redirect_to @ticket, alert: @ticket.errors.full_messages.to_sentence }
         format.json { render json: @ticket.errors, status: :unprocessable_entity }
       end
     end
@@ -128,6 +130,7 @@ class TicketsController < ApplicationController
 
     if (current_user.administrator? || current_user.collaborator?) && action_name != "create"
       permitted << :ticket_status_id
+      permitted << :reopen_reason if current_user.administrator?
     end
 
     params.require(:ticket).permit(*permitted, attachments: [])

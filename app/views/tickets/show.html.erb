@@ -62,6 +62,13 @@
                 <%= f.collection_select :ticket_status_id, TicketStatus.order(:name), :id, :name, {}, class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-3" %>
               </div>
 
+              <% if @ticket.ticket_status&.is_final? && current_user.administrator? %>
+                <div class="w-full sm:w-96">
+                  <%= f.label :reopen_reason, "Motivo (Obrigatório caso vá reabrir)", class: "block mb-2 text-sm font-bold text-red-800" %>
+                  <%= f.text_field :reopen_reason, placeholder: "Ex: Diagnóstico incompleto", class: "bg-red-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-3 outline-none focus:ring-red-500 focus:border-red-500" %>
+                </div>
+              <% end %>
+
               <div>
                 <%= f.submit "Salvar", class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-sm transition-colors" %>
               </div>
