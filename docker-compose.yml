@@ -9,10 +9,13 @@ services:
       - "5432:5432"
 
   web:
-    build: .
-    command: bash -c "rm -f tmp/pids/server.pid && bin/rails s -p 3000 -b '0.0.0.0'"
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: bash -c "rm -f tmp/pids/server.pid && bundle install && bin/rails s -p 3000 -b '0.0.0.0'"
     volumes:
       - .:/rails
+      - bundle_cache:/usr/local/bundle
     ports:
       - "3000:3000"
     depends_on:
@@ -22,3 +25,4 @@ services:
 
 volumes:
   postgres_data:
+  bundle_cache:
