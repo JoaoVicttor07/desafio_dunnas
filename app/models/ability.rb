@@ -12,11 +12,10 @@ class Ability
     end
 
     if user.collaborator?
-      # Colaborador: só gestão de chamados (escopo = condomínio inteiro)
-      can [:read, :update], Ticket
-      can [:read, :create], Comment
       can :read, TicketType
       can :read, TicketStatus
+      can [:read, :update], Ticket, ticket_type_id: user.assigned_ticket_type_ids
+      can [:read, :create], Comment, ticket: { ticket_type_id: user.assigned_ticket_type_ids }
       return
     end
 
