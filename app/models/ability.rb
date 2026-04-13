@@ -23,8 +23,9 @@ class Ability
     # Morador: só gestão de seus próprios chamados
     can :read, Unit, id: user.unit_ids
     can :read, TicketType
-    can [:read, :create], Ticket, user_id: user.id
-    can [:read, :create], Comment, ticket: { user_id: user.id }
+    can :read, Ticket, unit_id: user.unit_ids
+    can :create, Ticket, user_id: user.id
+    can [:read, :create], Comment, ticket: { unit_id: user.unit_ids }
 
   end
 end
