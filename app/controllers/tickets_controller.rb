@@ -5,7 +5,15 @@ class TicketsController < ApplicationController
 
   # GET /tickets or /tickets.json
   def index
-    @filters = params.permit(:ticket_status_id, :ticket_type_id, :unit_id)
+    @filters = params.permit(
+      :ticket_status_id, 
+      :ticket_type_id, 
+      :unit_id,
+      :block_id,
+      :created_from,
+      :created_to,
+      :q
+    )
 
     @tickets = @tickets
     .includes(:ticket_status, :ticket_type, unit: :block)
@@ -21,6 +29,28 @@ class TicketsController < ApplicationController
 
     if current_user.resident? && @filters[:unit_id].present?
       @tickets = @tickets.where(unit_id: @filters[:unit_id])
+    end
+
+    if @filters[:block_id].present?
+      @tickets = @tickets.joins(unit: :block).where(blocks: { id: @filters[:block_id] })
+    end
+
+    if @filters[:created_from].present?
+      from = Date.parse(@filters[:created_from]) rescue nil
+      @tickets = @tickets.where("tickets.created_at >= ?", from.beginning_of_day) if from
+  end
+
+    if @filters[:created_to].present?
+      to = Date.parse(@filters[:created_to]) rescue nil
+      @tickets = @tickets.where("tickets.created_at <= ?", to.end_of_day) if to
+    end
+
+    if @filters[:q].present?
+      q = "%#{@filters[:q].strip}%"
+      @tickets = @tickets.joins(:ticket_type, unit: :block).where(
+        "tickets.description ILIKE :q OR ticket_types.title ILIKE :q OR units.identifier ILIKE :q OR blocks.identification ILIKE :q",
+        q: q
+      )
     end
   end
 

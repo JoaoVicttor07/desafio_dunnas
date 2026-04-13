@@ -8,7 +8,33 @@
 
   <div class="bg-white shadow-md rounded-xl overflow-hidden overflow-x-auto border border-gray-200">
 
-    <%= form_with url: tickets_path, method: :get, local: true, class: "mb-6 flex flex-col md:flex-row gap-3" do %>
+    <%= form_with url: tickets_path, method: :get, local: true, class: "mb-6 p-4 md:grid md:grid-cols-4 items-end" do %>
+
+      <% unless current_user.resident? %>
+        <div>
+          <%= label_tag :block_id, "Bloco", class: "block text-sm font-bold text-gray-800 mb-1" %>
+          <%= select_tag :block_id,
+          options_from_collection_for_select(Block.order(:identification), :id, :identification, params[:block_id]),
+          include_blank: "Todos",
+          class: "bg-gray-50 border border-gray-300 rounded-lg p-2" %>
+        </div>
+      <% end %>
+
+      <div>
+        <%= label_tag :created_from, "De", class: "block text-sm font-bold text-gray-800 mb-1" %>
+        <%= date_field_tag :created_from, params[:created_from], class: "bg-gray-50 border border-gray-300 rounded-lg p-2" %>
+      </div>
+
+      <div>
+        <%= label_tag :created_to, "Até", class: "block text-sm font-bold text-gray-800 mb-1" %>
+        <%= date_field_tag :created_to, params[:created_to], class: "bg-gray-50 border border-gray-300 rounded-lg p-2" %>
+      </div>
+
+      <div class="flex-1">
+        <%= label_tag :q, "Buscar", class: "block text-sm font-bold text-gray-800 mb-1" %>
+        <%= text_field_tag :q, params[:q], placeholder: "Descrição, tipo, bloco ou unidade...", class: "w-full bg-gray-50 border border-gray-300 rounded-lg p-2" %>
+      </div>
+
       <div>
         <%= label_tag :ticket_status_id, "Status", class: "block text-sm font-bold text-gray-800 mb-1" %>
         <%= select_tag :ticket_status_id,
