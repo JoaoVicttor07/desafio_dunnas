@@ -1,5 +1,8 @@
 <% provide(:title, "Meus Chamados | Condomínio Dunnas") %>
 
+<% filter_keys = %i[block_id created_from created_to q ticket_status_id ticket_type_id unit_id] %>
+<% filters_active = filter_keys.any? { |k| params[k].present? } %>
+
 <div class="w-full">
   <div class="flex justify-between items-center mb-6">
     <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Meus Chamados</h1>
@@ -8,63 +11,76 @@
 
   <div class="bg-white shadow-md rounded-xl overflow-hidden overflow-x-auto border border-gray-200">
 
-    <%= form_with url: tickets_path, method: :get, local: true, class: "mb-6 p-4 md:grid md:grid-cols-4 items-end" do %>
+    <%= form_with url: tickets_path, method: :get, local: true, class: "p-4" do %>
+      <details class="group" <%= "open" if filters_active %>>
+        <summary class="list-none cursor-pointer select-none">
+          <div class="inline-flex items-center gap-2 bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 font-bold text-gray-800">
+            Filtros
+            
+          </div>
+          <span class="ml-2 text-sm text-gray-500">
+            
+          </span>
+        </summary>
 
-      <% unless current_user.resident? %>
-        <div>
-          <%= label_tag :block_id, "Bloco", class: "block text-sm font-bold text-gray-800 mb-1" %>
-          <%= select_tag :block_id,
-          options_from_collection_for_select(Block.order(:identification), :id, :identification, params[:block_id]),
-          include_blank: "Todos",
-          class: "bg-gray-50 border border-gray-300 rounded-lg p-2" %>
+        <div class="mt-4 grid gap-4 md:grid-cols-4 items-end">
+          <% unless current_user.resident? %>
+            <div>
+              <%= label_tag :block_id, "Bloco", class: "block text-sm font-bold text-gray-800 mb-1" %>
+              <%= select_tag :block_id,
+                options_from_collection_for_select(Block.order(:identification), :id, :identification, params[:block_id]),
+                include_blank: "Todos",
+                class: "bg-gray-50 border border-gray-300 rounded-lg p-2 w-full" %>
+            </div>
+          <% end %>
+
+          <div>
+            <%= label_tag :created_from, "De", class: "block text-sm font-bold text-gray-800 mb-1" %>
+            <%= date_field_tag :created_from, params[:created_from], class: "bg-gray-50 border border-gray-300 rounded-lg p-2" %>
+          </div>
+
+          <div>
+            <%= label_tag :created_to, "Até", class: "block text-sm font-bold text-gray-800 mb-1" %>
+            <%= date_field_tag :created_to, params[:created_to], class: "bg-gray-50 border border-gray-300 rounded-lg p-2" %>
+          </div>
+
+          <div class="flex-1">
+            <%= label_tag :q, "Buscar", class: "block text-sm font-bold text-gray-800 mb-1" %>
+            <%= text_field_tag :q, params[:q], placeholder: "Descrição, tipo, bloco ou unidade...", class: "w-full bg-gray-50 border border-gray-300 rounded-lg p-2" %>
+          </div>
+
+          <div>
+            <%= label_tag :ticket_status_id, "Status", class: "block text-sm font-bold text-gray-800 mb-1" %>
+            <%= select_tag :ticket_status_id,
+            options_from_collection_for_select(TicketStatus.order(:name), :id, :name, params[:ticket_status_id]),
+            include_blank: "Todos",
+            class: "bg-gray-50 border border-gray-300 rounded-lg p-2" %>
+          </div>
+
+          <div>
+            <%= label_tag :ticket_type_id, "Tipo", class: "block text-sm font-bold text-gray-800 mb-1" %>
+            <%= select_tag :ticket_type_id,
+            options_from_collection_for_select(TicketType.order(:title), :id, :title, params[:ticket_type_id]),
+            include_blank: "Todos",
+            class: "bg-gray-50 border border-gray-300 rounded-lg p-2" %>
+          </div>
+
+          <% if current_user.resident? %>
+            <div>
+              <%= label_tag :unit_id, "Unidade", class: "block text-sm font-bold text-gray-800 mb-1" %>
+              <%= select_tag :unit_id,
+              options_from_collection_for_select(current_user.units.includes(:block), :id, :identifier, params[:unit_id]),
+              include_blank: "Todas",
+              class: "bg-gray-50 border border-gray-300 rounded-lg p-2" %>
+            </div>
+          <% end %>
+
+          <div class="flex items-end gap-2">
+            <%= submit_tag "Filtrar", class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg" %>
+            <%= link_to "Limpar", tickets_path, class: "bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg" %>
+          </div>
         </div>
-      <% end %>
-
-      <div>
-        <%= label_tag :created_from, "De", class: "block text-sm font-bold text-gray-800 mb-1" %>
-        <%= date_field_tag :created_from, params[:created_from], class: "bg-gray-50 border border-gray-300 rounded-lg p-2" %>
-      </div>
-
-      <div>
-        <%= label_tag :created_to, "Até", class: "block text-sm font-bold text-gray-800 mb-1" %>
-        <%= date_field_tag :created_to, params[:created_to], class: "bg-gray-50 border border-gray-300 rounded-lg p-2" %>
-      </div>
-
-      <div class="flex-1">
-        <%= label_tag :q, "Buscar", class: "block text-sm font-bold text-gray-800 mb-1" %>
-        <%= text_field_tag :q, params[:q], placeholder: "Descrição, tipo, bloco ou unidade...", class: "w-full bg-gray-50 border border-gray-300 rounded-lg p-2" %>
-      </div>
-
-      <div>
-        <%= label_tag :ticket_status_id, "Status", class: "block text-sm font-bold text-gray-800 mb-1" %>
-        <%= select_tag :ticket_status_id,
-        options_from_collection_for_select(TicketStatus.order(:name), :id, :name, params[:ticket_status_id]),
-        include_blank: "Todos",
-        class: "bg-gray-50 border border-gray-300 rounded-lg p-2" %>
-      </div>
-
-      <div>
-        <%= label_tag :ticket_type_id, "Tipo", class: "block text-sm font-bold text-gray-800 mb-1" %>
-        <%= select_tag :ticket_type_id,
-        options_from_collection_for_select(TicketType.order(:title), :id, :title, params[:ticket_type_id]),
-        include_blank: "Todos",
-        class: "bg-gray-50 border border-gray-300 rounded-lg p-2" %>
-      </div>
-
-      <% if current_user.resident? %>
-        <div>
-          <%= label_tag :unit_id, "Unidade", class: "block text-sm font-bold text-gray-800 mb-1" %>
-          <%= select_tag :unit_id,
-          options_from_collection_for_select(current_user.units.includes(:block), :id, :identifier, params[:unit_id]),
-          include_blank: "Todas",
-          class: "bg-gray-50 border border-gray-300 rounded-lg p-2" %>
-        </div>
-      <% end %>
-
-      <div class="flex items-end gap-2">
-        <%= submit_tag "Filtrar", class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg" %>
-        <%= link_to "Limpar", tickets_path, class: "bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg" %>
-      </div>
+      </details>
     <% end %>
 
     <table class="min-w-full divide-y divide-gray-200">
