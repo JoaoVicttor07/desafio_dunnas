@@ -2,11 +2,35 @@
   <% items.each do |item| %>
     <% active = navigation_item_active?(item) %>
     <li>
-      <%= link_to item[:path], class: navigation_link_classes(active, mobile: mobile) do %>
-        <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg text-xs font-bold <%= active ? 'bg-blue-100 text-blue-900' : 'bg-white/20 text-white' %>">
-          <%= item[:label].first %>
-        </span>
-        <span><%= item[:label] %></span>
+      <% if item[:children].present? %>
+        <% expanded = navigation_group_open?(item) %>
+        <details class="group" <%= "open" if expanded %>>
+          <summary class="list-none cursor-pointer">
+            <div class="<%= navigation_group_button_classes(active, mobile: mobile) %>">
+              <div class="flex items-center gap-3">
+                <span class="<%= navigation_badge_classes(active) %>"><%= item[:icon] || item[:label].first %></span>
+                <span><%= item[:label] %></span>
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-current transition-transform duration-200 group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </summary>
+
+          <ul class="mt-1 space-y-1 pl-11 pr-1 pb-1">
+            <% item[:children].each do |child| %>
+              <% child_active = navigation_item_active?(child) %>
+              <li>
+                <%= link_to child[:label], child[:path], class: navigation_sub_link_classes(child_active) %>
+              </li>
+            <% end %>
+          </ul>
+        </details>
+      <% else %>
+        <%= link_to item[:path], class: navigation_link_classes(active, mobile: mobile) do %>
+          <span class="<%= navigation_badge_classes(active) %>"><%= item[:icon] || item[:label].first %></span>
+          <span><%= item[:label] %></span>
+        <% end %>
       <% end %>
     </li>
   <% end %>
