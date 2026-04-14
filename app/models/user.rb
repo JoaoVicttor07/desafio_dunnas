@@ -6,5 +6,28 @@ class User < ApplicationRecord
 
   devise :database_authenticatable, :rememberable, :validatable
   enum :role, { resident: 0, collaborator: 1, administrator: 2 }, default: :resident
+
   validates :name, presence: true
+  validate :prevent_admin_demotion, on: :update
+
+  private
+
+  validate :prevent_last_admin_demotion, on: :update
+
+  private
+
+  def prevent_last_admin_demotion
+    return unless will_save_change_to_role?
+
+    old_role_value, new_role_value = role_change_to_be_saved
+    old_role = self.class.roles.key(old_role_value)
+    new_role = self.class.roles.key(new_role_value)
+
+    return unless old_role == "administrator" && new_role != "administrator"
+
+    other_admin_exists = self.class.where(role: :administrator).where.not(id: id).exists?
+    return if other_admin_exists
+
+    errors.add(:role, "não pode ser alterada: este é o último administrador do sistema")
+  end
 end
