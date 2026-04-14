@@ -27,7 +27,7 @@
           
           <div class="flex-shrink-0 font-extrabold text-2xl tracking-tight text-center sm:text-left">
             <%= link_to "Condomínio Dunnas", 
-              (user_signed_in? && !current_user.administrator? ? tickets_path : root_path), 
+              (user_signed_in? ? (current_user.administrator? ? authenticated_root_path : tickets_path) : unauthenticated_root_path),
               class: "hover:text-blue-200 transition-colors" %>
           </div>
 

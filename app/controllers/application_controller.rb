@@ -2,12 +2,12 @@ class ApplicationController < ActionController::Base
   before_action :configure_permitted_parameters, if: :devise_controller?
 
   rescue_from CanCan::AccessDenied do
-    target = (user_signed_in? && current_user.administrator?) ? root_path : tickets_path
+    target = (user_signed_in? && current_user.administrator?) ? authenticated_root_path : tickets_path
     redirect_to target, alert: "Acesso Negado: Você não tem permissão para acessar esta página."
   end
 
   def after_sign_in_path_for(resource)
-    return root_path if resource.respond_to?(:administrator?) && resource.administrator?
+    return authenticated_root_path if resource.respond_to?(:administrator?) && resource.administrator?
     return tickets_path if resource.respond_to?(:collaborator?) && resource.collaborator?
     return tickets_path if resource.respond_to?(:resident?) && resource.resident?
     super
