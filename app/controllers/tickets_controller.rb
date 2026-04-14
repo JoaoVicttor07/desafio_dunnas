@@ -124,14 +124,13 @@ class TicketsController < ApplicationController
     permitted =
       if action_name == "create"
         [:unit_id, :ticket_type_id, :description]
+      elsif current_user.administrator?
+        [:description, :ticket_status_id, :reopen_reason]
+      elsif current_user.collaborator?
+        [:ticket_status_id]
       else
-        [:description]
+        []
       end
-
-    if (current_user.administrator? || current_user.collaborator?) && action_name != "create"
-      permitted << :ticket_status_id
-      permitted << :reopen_reason if current_user.administrator?
-    end
 
     params.require(:ticket).permit(*permitted, attachments: [])
   end
