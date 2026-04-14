@@ -34,6 +34,11 @@ module Admin
         return
       end
 
+      if @user.administrator? && User.where(role: :administrator).count == 1
+        redirect_to admin_users_path, alert: "Não é permitido excluir o último administrador."
+        return
+      end
+
       @user.destroy!
       redirect_to admin_users_path, notice: "Usuário removido com sucesso."
     end
