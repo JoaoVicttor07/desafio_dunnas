@@ -8,10 +8,6 @@ class User < ApplicationRecord
   enum :role, { resident: 0, collaborator: 1, administrator: 2 }, default: :resident
 
   validates :name, presence: true
-  validate :prevent_admin_demotion, on: :update
-
-  private
-
   validate :prevent_last_admin_demotion, on: :update
 
   private
