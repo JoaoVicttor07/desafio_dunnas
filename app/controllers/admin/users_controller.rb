@@ -42,6 +42,7 @@ module Admin
 
     def user_params
       permitted = [:name, :email, :role, :password, :password_confirmation]
+      permitted << :role unless @user == current_user
       p = params.require(:user).permit(*permitted)
 
       if p[:password].blank?
