@@ -114,7 +114,7 @@
         unitsData[blockId].forEach(function(unit) {
           const option = document.createElement("option");
           option.value = unit[0];
-          option.text = unit[1];
+          option.text = `Apartamento ${unit[1]}`;
           unitSelect.appendChild(option);
         });
       } else {
