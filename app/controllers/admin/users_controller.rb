@@ -29,6 +29,11 @@ module Admin
     end
 
     def destroy
+      if @user == current_user
+        redirect_to admin_users_path, alert: "Você não pode excluir seu próprio usuário."
+        return
+      end
+
       @user.destroy!
       redirect_to admin_users_path, notice: "Usuário removido com sucesso."
     end
