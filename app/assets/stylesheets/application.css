@@ -13,3 +13,28 @@
  *= require_tree .
  *= require_self
  */
+
+:root {
+	--app-text: #0f172a;
+	--app-surface: #f7f9fc;
+}
+
+body {
+	color: var(--app-text);
+	font-family: "Source Sans 3", "Segoe UI", sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+.font-display {
+	font-family: "Sora", "Segoe UI", sans-serif;
+}
+
+.app-background {
+	background:
+		radial-gradient(circle at -10% -20%, rgba(56, 90, 216, 0.16) 0%, rgba(56, 90, 216, 0) 48%),
+		radial-gradient(circle at 115% 0%, rgba(20, 184, 166, 0.13) 0%, rgba(20, 184, 166, 0) 40%),
+		var(--app-surface);
+}
