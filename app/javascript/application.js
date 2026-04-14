@@ -2,7 +2,28 @@
 import "@hotwired/turbo-rails"
 import "controllers"
 
+const animatePageEntry = () => {
+	const content = document.querySelector("#app-main-content")
+	if (!content) return
+
+	content.classList.remove("page-enter")
+	requestAnimationFrame(() => {
+		content.classList.add("page-enter")
+	})
+}
+
+document.addEventListener("turbo:before-visit", () => {
+	document.body.classList.add("is-navigating")
+})
+
+document.addEventListener("turbo:render", () => {
+	document.body.classList.remove("is-navigating")
+	animatePageEntry()
+})
+
 document.addEventListener("turbo:load", () => {
+	animatePageEntry()
+
 	const drawer = document.querySelector("#mobile-nav")
 	const overlay = document.querySelector("#mobile-nav-overlay")
 	const openButton = document.querySelector("[data-nav-open]")
