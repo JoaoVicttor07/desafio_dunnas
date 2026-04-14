@@ -2,9 +2,9 @@ Rails.application.routes.draw do
   resources :tickets do
     resources :comments, only: [:create]
   end
-  resources :ticket_statuses
-  resources :ticket_types
-  resources :blocks
+  resources :ticket_statuses, except: [:show]
+  resources :ticket_types, except: [:show]
+  resources :blocks, except: [:show]
   devise_for :users, skip: [:registrations, :passwords]
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
