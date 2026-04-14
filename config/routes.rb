@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  resources :tickets do
+  resources :tickets, except: [:edit] do
     resources :comments, only: [:create]
   end
   resources :ticket_statuses, except: [:show]
