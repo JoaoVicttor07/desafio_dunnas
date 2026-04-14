@@ -8,14 +8,13 @@ class Block < ApplicationRecord
 
   private
 
-
-  # Lógica para gerar sequencia de apartamentos de acordo com a quantidade de andares #
   def generate_units
     (1..floors_count).each do |floor|
       (1..apartments_per_floor).each do |apt|
-        apt_number = apt.to_s.rjust(2, "0")
-        identifier_name = "#{self.identification} - Andar #{floor} - Apto #{apt_number}"
-        units.create!(identifier: identifier_name)
+        apt_two_digits = apt.to_s.rjust(2, "0")
+        unit_number = "#{floor}#{apt_two_digits}"
+
+        units.create!(identifier: unit_number)
       end
     end
   end
