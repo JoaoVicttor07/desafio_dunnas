@@ -1,16 +1,18 @@
-<div id="<%= dom_id ticket_status %>" class="w-full sm:w-auto my-5 space-y-5">
-  <div>
-    <strong class="block font-medium mb-1">Nome:</strong>
-    <%= ticket_status.name %>
-  </div>
+<div id="<%= dom_id ticket_status %>" class="w-full sm:w-auto">
+  <div class="grid gap-3 sm:grid-cols-3">
+    <div>
+      <strong class="mb-1 block text-xs uppercase tracking-wide text-violet-700">Nome</strong>
+      <p class="text-sm font-semibold text-slate-900"><%= ticket_status.name %></p>
+    </div>
 
-  <div>
-    <strong class="block font-medium mb-1">Padrão do sistema:</strong>
-    <%= ticket_status.is_default? ? "Sim" : "Não" %>
-  </div>
+    <div>
+      <strong class="mb-1 block text-xs uppercase tracking-wide text-violet-700">Padrao do sistema</strong>
+      <p class="text-sm text-slate-700"><%= ticket_status.is_default? ? "Sim" : "Nao" %></p>
+    </div>
 
-  <div>
-    <strong class="block font-medium mb-1">Status de conclusão:</strong>
-    <%= ticket_status.is_final? ? "Sim" : "Não" %>
+    <div>
+      <strong class="mb-1 block text-xs uppercase tracking-wide text-violet-700">Status de conclusao</strong>
+      <p class="text-sm text-slate-700"><%= ticket_status.is_final? ? "Sim" : "Nao" %></p>
+    </div>
   </div>
 </div>

@@ -1,4 +1,5 @@
 <% provide(:title, "Visualizar Chamado | Condomínio Dunnas") %>
+<% provide(:page_heading, "Detalhes do Chamado") %>
 
 <div class="max-w-4xl mx-auto mb-10 mt-6">
   
@@ -10,7 +11,7 @@
       <p class="text-gray-500 mt-1 font-medium"><%= @ticket.ticket_type.title %></p>
     </div>
     <div class="text-right">
-      <span class="px-4 py-2 inline-flex text-sm leading-5 font-bold rounded-full bg-blue-100 text-blue-800 mb-2">
+      <span class="mb-2 inline-flex rounded-full bg-violet-100 px-4 py-2 text-sm font-bold leading-5 text-violet-800">
         <%= @ticket.ticket_status.name %>
       </span>
       <p class="text-sm text-gray-500 font-semibold">
@@ -45,7 +46,7 @@
               url_for(att), 
               target: "_blank",
               rel: "noopener",
-              class: "text-blue-600 hover:text-blue-900 font-semibold" %>
+              class: "font-semibold text-violet-700 hover:text-violet-900" %>
           </li>
         <% end %>
       </ul>
@@ -59,7 +60,7 @@
             <%= form_with(model: @ticket, local: true, class: "flex flex-col sm:flex-row gap-3 items-start sm:items-end") do |f| %>
               <div class="w-full sm:w-72">
                 <%= f.label :ticket_status_id, "Status", class: "block mb-2 text-sm font-bold text-gray-800" %>
-                <%= f.collection_select :ticket_status_id, TicketStatus.order(:name), :id, :name, {}, class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-3" %>
+                <%= f.collection_select :ticket_status_id, TicketStatus.order(:name), :id, :name, {}, class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-3 focus:ring-violet-200 focus:border-violet-500" %>
               </div>
 
               <% if @ticket.ticket_status&.is_final? && current_user.administrator? %>
@@ -70,7 +71,7 @@
               <% end %>
 
               <div>
-                <%= f.submit "Salvar", class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-sm transition-colors" %>
+                <%= f.submit "Salvar", class: "btn-brand px-6 py-2 text-sm" %>
               </div>
             <% end %>
           </div>
@@ -89,7 +90,7 @@
       <% @ticket.comments.each do |comment| %>
         <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
           <div class="flex justify-between items-center mb-2">
-            <span class="font-bold text-blue-900"><%= comment.user.name %></span>
+            <span class="font-bold text-violet-900"><%= comment.user.name %></span>
             <span class="text-xs text-gray-400 font-mono"><%= comment.created_at.strftime("%d/%m/%Y às %H:%M") %></span>
           </div>
           <p class="text-gray-700 whitespace-pre-wrap"><%= comment.body %></p>
@@ -103,10 +104,10 @@
       <h4 class="text-lg font-bold text-gray-900 mb-4">Adicionar um Comentário</h4>
       <%= form_with(model: [@ticket, Comment.new], local: true, class: "space-y-4") do |form| %>
         <div>
-          <%= form.text_area :body, rows: 3, class: "block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder: "Escreva sua mensagem aqui..." %>
+          <%= form.text_area :body, rows: 3, class: "block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-violet-200 focus:border-violet-500 sm:text-sm", placeholder: "Escreva sua mensagem aqui..." %>
         </div>
         <div>
-          <%= form.submit "Enviar Mensagem", class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded transition-colors cursor-pointer" %>
+          <%= form.submit "Enviar Mensagem", class: "btn-brand px-6 py-2 text-sm cursor-pointer" %>
         </div>
       <% end %>
     <% end %>

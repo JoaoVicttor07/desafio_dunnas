@@ -15,11 +15,11 @@
 
   <div class="my-5">
     <%= form.label :name, "Nome do status" %>
-    <%= form.text_field :name, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": ticket_status.errors[:name].none?, "border-red-400 focus:outline-red-600": ticket_status.errors[:name].any?}] %>
+    <%= form.text_field :name, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-violet-600": ticket_status.errors[:name].none?, "border-red-400 focus:outline-red-600": ticket_status.errors[:name].any?}] %>
   </div>
 
   <div class="my-5 flex items-center gap-2">
-    <%= form.check_box :is_final, class: ["block shadow-sm rounded-md border order-first h-5 w-5", {"border-gray-400 focus:outline-blue-600": ticket_status.errors[:is_final].none?, "border-red-400 focus:outline-red-600": ticket_status.errors[:is_final].any?}] %>
+    <%= form.check_box :is_final, class: ["block shadow-sm rounded-md border order-first h-5 w-5", {"border-gray-400 focus:outline-violet-600": ticket_status.errors[:is_final].none?, "border-red-400 focus:outline-red-600": ticket_status.errors[:is_final].any?}] %>
     <%= form.label :is_final, "Status de conclusão" %>
   </div>
 
@@ -28,6 +28,6 @@
   </p>
 
   <div class="inline">
-    <%= form.submit "Salvar", class: "w-full sm:w-auto rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
+    <%= form.submit "Salvar", class: "btn-brand w-full sm:w-auto px-3.5 py-2.5 text-sm inline-block cursor-pointer" %>
   </div>
 <% end %>

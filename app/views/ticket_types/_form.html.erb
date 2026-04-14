@@ -15,12 +15,12 @@
 
   <div class="my-5">
     <%= form.label :title, "Título" %>
-    <%= form.text_field :title, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": ticket_type.errors[:title].none?, "border-red-400 focus:outline-red-600": ticket_type.errors[:title].any?}] %>
+    <%= form.text_field :title, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-violet-600": ticket_type.errors[:title].none?, "border-red-400 focus:outline-red-600": ticket_type.errors[:title].any?}] %>
   </div>
 
   <div class="my-5">
     <%= form.label :sla_hours, "Prazo (SLA em horas)" %>
-    <%= form.number_field :sla_hours, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": ticket_type.errors[:sla_hours].none?, "border-red-400 focus:outline-red-600": ticket_type.errors[:sla_hours].any?}] %>
+    <%= form.number_field :sla_hours, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-violet-600": ticket_type.errors[:sla_hours].none?, "border-red-400 focus:outline-red-600": ticket_type.errors[:sla_hours].any?}] %>
   </div>
 
   <div class="my-5 p-4 border rounded-md bg-gray-50 border-gray-200">
@@ -32,6 +32,6 @@
   </div>
 
   <div class="inline">
-    <%= form.submit "Salvar", class: "w-full sm:w-auto rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
+    <%= form.submit "Salvar", class: "btn-brand w-full sm:w-auto px-3.5 py-2.5 text-sm inline-block cursor-pointer" %>
   </div>
 <% end %>
