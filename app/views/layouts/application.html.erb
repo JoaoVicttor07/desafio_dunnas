@@ -29,10 +29,10 @@
       <div class="min-h-screen lg:flex">
         <div id="mobile-nav-overlay" class="fixed inset-0 z-40 hidden bg-slate-950/50 lg:hidden"></div>
 
-        <aside id="mobile-nav" class="fixed inset-y-0 left-0 z-50 flex w-72 -translate-x-full flex-col bg-gradient-to-b from-[#173483] to-[#0e1f4d] p-6 text-white shadow-2xl transition-transform duration-300 ease-out lg:hidden">
+        <aside id="mobile-nav" class="fixed inset-y-0 left-0 z-50 flex w-72 -translate-x-full flex-col bg-gradient-to-b from-[#48377d] to-[#2a1d50] p-6 text-white shadow-2xl transition-transform duration-300 ease-out lg:hidden">
           <div class="mb-8">
             <p class="font-display text-2xl font-extrabold tracking-tight">Condominio Dunnas</p>
-            <p class="mt-1 text-sm text-blue-200">Navegacao rapida</p>
+            <p class="mt-1 text-sm text-violet-200">Navegacao rapida</p>
           </div>
 
           <nav class="flex-1 overflow-y-auto">
@@ -44,10 +44,10 @@
           </button>
         </aside>
 
-        <aside class="hidden w-72 flex-col bg-gradient-to-b from-[#173483] to-[#0e1f4d] p-6 text-white shadow-2xl lg:flex">
+        <aside class="hidden w-72 flex-col bg-gradient-to-b from-[#48377d] to-[#2a1d50] p-6 text-white shadow-2xl lg:flex">
           <div class="mb-10">
             <p class="font-display text-2xl font-extrabold tracking-tight">Condominio Dunnas</p>
-            <p class="mt-1 text-sm text-blue-200">Painel de operacoes</p>
+            <p class="mt-1 text-sm text-violet-200">Painel de operacoes</p>
           </div>
 
           <nav class="flex-1 overflow-y-auto">
@@ -55,9 +55,9 @@
           </nav>
 
           <div class="mt-6 rounded-2xl bg-white/10 p-4">
-            <p class="text-xs uppercase tracking-[0.18em] text-blue-200">Sessao ativa</p>
+            <p class="text-xs uppercase tracking-[0.18em] text-violet-200">Sessao ativa</p>
             <p class="mt-2 font-semibold text-white"><%= current_user.name %></p>
-            <p class="text-sm text-blue-200"><%= role_label(current_user) %></p>
+            <p class="text-sm text-violet-200"><%= current_user.email %></p>
           </div>
         </aside>
 
@@ -73,14 +73,14 @@
 
                 <div>
                   <p class="text-xs uppercase tracking-[0.18em] text-slate-500"><%= current_user.administrator? ? "Area administrativa" : "Portal de chamados" %></p>
-                  <h1 class="font-display text-xl font-bold text-slate-900"><%= page_heading %></h1>
+                  <p class="text-sm font-medium text-slate-700">Navegacao e operacoes</p>
                 </div>
               </div>
 
               <div class="flex items-center gap-3">
                 <div class="hidden text-right sm:block">
                   <p class="font-semibold text-slate-800"><%= current_user.name %></p>
-                  <p class="text-sm text-slate-500"><%= role_label(current_user) %></p>
+                  <p class="text-sm text-slate-500"><%= current_user.email %></p>
                 </div>
                 <%= button_to "Sair", destroy_user_session_path, method: :delete, class: "rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition-colors hover:bg-red-700 cursor-pointer" %>
               </div>
@@ -112,7 +112,7 @@
           <%= link_to "Condominio Dunnas", unauthenticated_root_path, class: "font-display text-2xl font-extrabold tracking-tight text-slate-900" %>
 
           <% unless devise_controller? %>
-            <%= link_to "Entrar", new_user_session_path, class: "rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700" %>
+            <%= link_to "Entrar", new_user_session_path, class: "rounded-lg bg-[#5f46a6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#523b94]" %>
           <% end %>
         </div>
       </header>

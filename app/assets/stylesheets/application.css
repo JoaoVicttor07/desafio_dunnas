@@ -34,7 +34,15 @@ h4,
 
 .app-background {
 	background:
-		radial-gradient(circle at -10% -20%, rgba(56, 90, 216, 0.16) 0%, rgba(56, 90, 216, 0) 48%),
-		radial-gradient(circle at 115% 0%, rgba(20, 184, 166, 0.13) 0%, rgba(20, 184, 166, 0) 40%),
+		radial-gradient(circle at -10% -20%, rgba(72, 55, 125, 0.24) 0%, rgba(72, 55, 125, 0) 48%),
+		radial-gradient(circle at 115% 0%, rgba(123, 92, 196, 0.18) 0%, rgba(123, 92, 196, 0) 40%),
 		var(--app-surface);
+}
+
+details > summary {
+	list-style: none;
+}
+
+details > summary::-webkit-details-marker {
+	display: none;
 }
