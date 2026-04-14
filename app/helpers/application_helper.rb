@@ -1,4 +1,11 @@
 module ApplicationHelper
+	def root_path_for(user)
+		return unauthenticated_root_path unless user
+		return authenticated_root_path if user.administrator?
+
+		tickets_path
+	end
+
 	def navigation_items_for(user)
 		return [] unless user
 
@@ -6,22 +13,22 @@ module ApplicationHelper
 			return [
 				{
 					label: "Chamados",
-					icon: "C",
+					icon: :ticket,
 					children: [
-						{ label: "Visualizar chamados", path: tickets_path, controllers: %w[tickets comments] },
-						{ label: "Tipos de chamados", path: ticket_types_path, controllers: %w[ticket_types] },
-						{ label: "Status de chamados", path: ticket_statuses_path, controllers: %w[ticket_statuses] }
+						{ label: "Visualizar chamados", path: tickets_path, icon: :list, controllers: %w[tickets comments] },
+						{ label: "Tipos de chamados", path: ticket_types_path, icon: :tag, controllers: %w[ticket_types] },
+						{ label: "Status de chamados", path: ticket_statuses_path, icon: :status, controllers: %w[ticket_statuses] }
 					]
 				},
 				{
 					label: "Condominio",
-					icon: "B",
+					icon: :building,
 					children: [
-						{ label: "Blocos e unidades", path: blocks_path, controllers: %w[blocks] },
-						{ label: "Vinculos morador-unidade", path: admin_user_units_path, controllers: %w[admin/user_units admin/units] }
+						{ label: "Blocos e unidades", path: blocks_path, icon: :building, controllers: %w[blocks] },
+						{ label: "Vinculos morador-unidade", path: admin_user_units_path, icon: :link, controllers: %w[admin/user_units admin/units] }
 					]
 				},
-				{ label: "Usuarios", path: admin_users_path, icon: "U", controllers: %w[admin/users] }
+				{ label: "Usuarios", path: admin_users_path, icon: :users, controllers: %w[admin/users] }
 			]
 		end
 
@@ -29,9 +36,9 @@ module ApplicationHelper
 			return [
 				{
 					label: "Chamados",
-					icon: "C",
+					icon: :ticket,
 					children: [
-						{ label: "Visualizar chamados", path: tickets_path, controllers: %w[tickets comments] }
+						{ label: "Visualizar chamados", path: tickets_path, icon: :list, controllers: %w[tickets comments] }
 					]
 				}
 			]
@@ -40,9 +47,9 @@ module ApplicationHelper
 		[
 			{
 				label: "Chamados",
-				icon: "C",
+				icon: :ticket,
 				children: [
-					{ label: "Meus chamados", path: tickets_path, controllers: %w[tickets comments] }
+					{ label: "Meus chamados", path: tickets_path, icon: :list, controllers: %w[tickets comments] }
 				]
 			}
 		]
@@ -63,7 +70,7 @@ module ApplicationHelper
 	end
 
 	def navigation_link_classes(active, mobile: false)
-		base = "group flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200"
+		base = "group flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 ease-out"
 
 		if active
 			"#{base} bg-white text-[#3a266b] shadow-sm"
@@ -75,7 +82,7 @@ module ApplicationHelper
 	end
 
 	def navigation_group_button_classes(active, mobile: false)
-		base = "group flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm font-semibold transition-all duration-200"
+		base = "group flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm font-semibold transition-all duration-300 ease-out"
 
 		if active
 			"#{base} bg-white text-[#3a266b] shadow-sm"
@@ -87,7 +94,7 @@ module ApplicationHelper
 	end
 
 	def navigation_sub_link_classes(active)
-		base = "flex items-center rounded-lg px-3 py-2 text-sm transition-all duration-200"
+		base = "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all duration-300 ease-out"
 
 		if active
 			"#{base} bg-white text-[#3a266b] font-semibold"
@@ -98,9 +105,34 @@ module ApplicationHelper
 
 	def navigation_badge_classes(active)
 		if active
-			"inline-flex h-7 w-7 items-center justify-center rounded-lg bg-[#e9e2ff] text-xs font-bold text-[#3a266b]"
+			"inline-flex h-7 w-7 items-center justify-center rounded-lg bg-[#e9e2ff] text-[#3a266b]"
 		else
-			"inline-flex h-7 w-7 items-center justify-center rounded-lg bg-white/20 text-xs font-bold text-white"
+			"inline-flex h-7 w-7 items-center justify-center rounded-lg bg-white/20 text-white"
+		end
+	end
+
+	def navigation_icon(icon, classes: "h-4 w-4")
+		path = case icon
+					 when :ticket
+						 "M9 5h6a2 2 0 012 2v1.5a1.5 1.5 0 000 3V13a2 2 0 01-2 2H9a2 2 0 01-2-2v-1.5a1.5 1.5 0 000-3V7a2 2 0 012-2z"
+					 when :building
+						 "M4 21h16M6 21V6a1 1 0 011-1h10a1 1 0 011 1v15M9 10h.01M9 14h.01M9 18h.01M15 10h.01M15 14h.01M15 18h.01"
+					 when :users
+						 "M16 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 7a4 4 0 100-8 4 4 0 000 8m8 14v-2a4 4 0 00-3-3.87"
+					 when :list
+						 "M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"
+					 when :tag
+						 "M20 10l-8.586 8.586a2 2 0 01-2.828 0L3 13V3h10l7 7zM7.5 7.5h.01"
+					 when :status
+						 "M9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+					 when :link
+						 "M10 14a5 5 0 007.07 0l1.41-1.41a5 5 0 00-7.07-7.07L10 6m4 4a5 5 0 00-7.07 0L5.5 11.41a5 5 0 007.07 7.07L14 18"
+					 else
+						 "M12 5v14M5 12h14"
+					 end
+
+		content_tag(:svg, class: classes, xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", stroke: "currentColor") do
+			content_tag(:path, "", "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-width": "1.8", d: path)
 		end
 	end
 
