@@ -15,7 +15,7 @@ module Admin
       render json: units.limit(200).map { |u|
         {
           id: u.id,
-          label: "#{u.block.identification} - #{u.identifier}"
+          label: "Apartamento #{u.identifier}"
         }
       }
     end
