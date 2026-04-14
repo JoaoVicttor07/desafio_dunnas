@@ -27,7 +27,7 @@ class BlocksController < ApplicationController
 
     respond_to do |format|
       if @block.save
-        format.html { redirect_to @block, notice: "Block was successfully created." }
+        format.html { redirect_to @block, notice: "Bloco criado com sucesso." }
         format.json { render :show, status: :created, location: @block }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -40,7 +40,7 @@ class BlocksController < ApplicationController
   def update
     respond_to do |format|
       if @block.update(block_params)
-        format.html { redirect_to @block, notice: "Block was successfully updated.", status: :see_other }
+        format.html { redirect_to @block, notice: "Bloco atualizado com sucesso.", status: :see_other }
         format.json { render :show, status: :ok, location: @block }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -54,7 +54,7 @@ class BlocksController < ApplicationController
     @block.destroy!
 
     respond_to do |format|
-      format.html { redirect_to blocks_path, notice: "Block was successfully destroyed.", status: :see_other }
+      format.html { redirect_to blocks_path, notice: "Bloco removido com sucesso.", status: :see_other }
       format.json { head :no_content }
     end
   end

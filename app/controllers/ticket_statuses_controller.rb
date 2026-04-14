@@ -27,7 +27,7 @@ class TicketStatusesController < ApplicationController
 
     respond_to do |format|
       if @ticket_status.save
-        format.html { redirect_to @ticket_status, notice: "Ticket status was successfully created." }
+        format.html { redirect_to @ticket_status, notice: "Status criado com sucesso." }
         format.json { render :show, status: :created, location: @ticket_status }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -40,7 +40,7 @@ class TicketStatusesController < ApplicationController
   def update
     respond_to do |format|
       if @ticket_status.update(ticket_status_params)
-        format.html { redirect_to @ticket_status, notice: "Ticket status was successfully updated.", status: :see_other }
+        format.html { redirect_to @ticket_status, notice: "Status atualizado com sucesso.", status: :see_other }
         format.json { render :show, status: :ok, location: @ticket_status }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -54,7 +54,7 @@ class TicketStatusesController < ApplicationController
     @ticket_status.destroy!
 
     respond_to do |format|
-      format.html { redirect_to ticket_statuses_path, notice: "Ticket status was successfully destroyed.", status: :see_other }
+      format.html { redirect_to ticket_statuses_path, notice: "Status removido com sucesso.", status: :see_other }
       format.json { head :no_content }
     end
   end
