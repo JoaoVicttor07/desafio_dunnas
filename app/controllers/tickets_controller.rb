@@ -1,6 +1,6 @@
 class TicketsController < ApplicationController
-  INDEX_PER_PAGE = 10
-  INDEX_PER_PAGE_OPTIONS = [10, 20, 50].freeze
+  INDEX_PER_PAGE = 5
+  INDEX_PER_PAGE_OPTIONS = [5, 10, 20].freeze
   INDEX_SORT_OPTIONS = %w[id created_at updated_at sla_due_at ticket_type ticket_status apartment].freeze
   INDEX_SORT_COLUMNS = {
     "id" => "tickets.id",
