@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_04_13_161743) do
+ActiveRecord::Schema[7.2].define(version: 2026_04_14_230000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -58,6 +58,23 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_13_161743) do
     t.datetime "updated_at", null: false
     t.index ["ticket_id"], name: "index_comments_on_ticket_id"
     t.index ["user_id"], name: "index_comments_on_user_id"
+  end
+
+  create_table "notifications", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "actor_id"
+    t.bigint "ticket_id"
+    t.string "kind", null: false
+    t.string "title", null: false
+    t.text "body", null: false
+    t.datetime "read_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["actor_id"], name: "index_notifications_on_actor_id"
+    t.index ["kind"], name: "index_notifications_on_kind"
+    t.index ["ticket_id"], name: "index_notifications_on_ticket_id"
+    t.index ["user_id", "read_at"], name: "index_notifications_on_user_id_and_read_at"
+    t.index ["user_id"], name: "index_notifications_on_user_id"
   end
 
   create_table "ticket_statuses", force: :cascade do |t|
@@ -136,6 +153,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_13_161743) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "comments", "tickets"
   add_foreign_key "comments", "users"
+  add_foreign_key "notifications", "tickets"
+  add_foreign_key "notifications", "users"
+  add_foreign_key "notifications", "users", column: "actor_id"
   add_foreign_key "tickets", "ticket_statuses"
   add_foreign_key "tickets", "ticket_types"
   add_foreign_key "tickets", "units"

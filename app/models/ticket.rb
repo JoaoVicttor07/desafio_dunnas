@@ -16,6 +16,7 @@ class Ticket < ApplicationRecord
   belongs_to :ticket_status
 
   has_many :comments, dependent: :destroy
+  has_many :notifications, dependent: :destroy
   has_many_attached :attachments
 
   attr_accessor :acting_user, :reopen_reason
