@@ -273,7 +273,7 @@ end %>
               <% end %>
               <label for="per_page_footer" class="text-xs font-semibold uppercase tracking-wide text-slate-500">Itens/página</label>
               <%= select_tag :per_page,
-                options_for_select([["10", 10], ["20", 20], ["50", 50]], @per_page),
+                options_for_select([["5", 5], ["10", 10], ["20", 20]], @per_page),
                 id: "per_page_footer",
                 onchange: "this.form.requestSubmit()",
                 class: "rounded-lg border border-violet-200 bg-white px-2 py-1 text-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100" %>
