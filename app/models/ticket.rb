@@ -1,4 +1,15 @@
 class Ticket < ApplicationRecord
+  MAX_ATTACHMENT_SIZE = 5.megabytes
+  MAX_ATTACHMENTS = 1
+  ALLOWED_ATTACHMENT_CONTENT_TYPES = %w[
+    image/png
+    image/jpeg
+    image/webp
+    image/gif
+    image/heic
+    image/heif
+  ].freeze
+
   belongs_to :unit
   belongs_to :user
   belongs_to :ticket_type
@@ -18,6 +29,7 @@ class Ticket < ApplicationRecord
   validate :resident_unit_must_be_linked, on: :create
   validate :resolved_at_only_when_final
   validate :validate_reopen_conditions, on: :update
+  validate :validate_attachments
 
   after_update_commit :log_reopen_action, if: :reopened?
 
@@ -90,5 +102,23 @@ class Ticket < ApplicationRecord
       user: acting_user || user,
       body: "⚠️ Ação Automática: Chamado REABERTO.\nMotivo: #{reopen_reason}"
     )
+  end
+
+  def validate_attachments
+    return unless attachments.attached?
+
+    if attachments.count > MAX_ATTACHMENTS
+      errors.add(:attachments, "permitem apenas 1 imagem por chamado")
+    end
+
+    attachments.each do |attachment|
+      unless ALLOWED_ATTACHMENT_CONTENT_TYPES.include?(attachment.content_type)
+        errors.add(:attachments, "devem conter apenas imagens (PNG, JPG, WEBP, GIF ou HEIC)")
+      end
+
+      if attachment.byte_size > MAX_ATTACHMENT_SIZE
+        errors.add(:attachments, "#{attachment.filename} excede o limite de 5MB")
+      end
+    end
   end
 end

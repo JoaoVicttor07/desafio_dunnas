@@ -1,5 +1,5 @@
-<% provide(:title, "Meus Chamados | Condomínio Dunnas") %>
-<% provide(:page_heading, "Meus Chamados") %>
+<% provide(:title, "Chamados | Condomínio Dunnas") %>
+<% provide(:page_heading, "Chamados") %>
 
 <% filter_keys = %i[block_id created_from created_to q ticket_status_id ticket_type_id unit_id] %>
 <% filters_active = filter_keys.any? { |k| params[k].present? } %>
@@ -7,8 +7,7 @@
 <div class="w-full">
   <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <h1 class="font-display text-4xl font-extrabold tracking-tight text-slate-900">Meus Chamados</h1>
-      <p class="mt-1 text-sm text-slate-500">Acompanhe abertura, andamento e conclusao dos chamados do condominio.</p>
+      <h1 class="font-display text-4xl font-extrabold tracking-tight text-slate-900">Chamados</h1>
     </div>
 
     <%= link_to "Novo Chamado", new_ticket_path, class: "btn-brand inline-flex items-center justify-center px-5 py-2.5 text-sm" %>

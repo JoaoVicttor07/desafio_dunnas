@@ -21,6 +21,8 @@ pt-BR:
         identifier: "Número do Apartamento"
       ticket:
         description: "Descrição"
+        unit: "Unidade"
+        ticket_type: "Tipo de chamado"
     errors:
       models:
         user:
