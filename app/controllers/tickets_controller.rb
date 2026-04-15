@@ -10,6 +10,7 @@ class TicketsController < ApplicationController
       :ticket_type_id, 
       :unit_id,
       :block_id,
+      :sla_state,
       :created_from,
       :created_to,
       :q,
@@ -26,6 +27,10 @@ class TicketsController < ApplicationController
 
     if @filters[:ticket_type_id].present?
       @tickets = @tickets.where(ticket_type_id: @filters[:ticket_type_id])
+    end
+
+    if @filters[:sla_state].present?
+      @tickets = apply_sla_state_filter(@tickets, @filters[:sla_state])
     end
 
     if current_user.resident? && @filters[:unit_id].present?
@@ -161,6 +166,21 @@ class TicketsController < ApplicationController
   end
 
   private
+
+  def apply_sla_state_filter(scope, sla_state)
+    reference_time = Time.current
+
+    case sla_state
+    when "breached"
+      scope.sla_breached(reference_time)
+    when "at_risk"
+      scope.sla_at_risk(reference_time)
+    when "on_time"
+      scope.sla_on_time(reference_time)
+    else
+      scope
+    end
+  end
 
   def reopening_transition?(old_status_id, new_status_id)
     old_status = TicketStatus.find_by(id: old_status_id)
