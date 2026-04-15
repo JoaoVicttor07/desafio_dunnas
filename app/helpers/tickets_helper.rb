@@ -1,4 +1,20 @@
 module TicketsHelper
+	def tickets_sort_next_direction(current_sort_by, current_sort_dir, column)
+		return "asc" unless current_sort_by == column
+
+		current_sort_dir == "asc" ? "desc" : "asc"
+	end
+
+	def tickets_sort_indicator(current_sort_by, current_sort_dir, column)
+		return "" unless current_sort_by == column
+
+		current_sort_dir == "asc" ? " ↑" : " ↓"
+	end
+
+	def tickets_query_with(overrides = {})
+		request.query_parameters.merge(overrides)
+	end
+
 	def ticket_sla_badge_classes(ticket)
 		case ticket.sla_status_key
 		when :breached
