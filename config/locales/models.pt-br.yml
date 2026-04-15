@@ -23,6 +23,9 @@ pt-BR:
         description: "Descrição"
         unit: "Unidade"
         ticket_type: "Tipo de chamado"
+        ticket_status: "Status"
+        reopen_reason: "Motivo"
+        closing_note: "Parecer"
     errors:
       models:
         user:
