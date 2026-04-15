@@ -12,7 +12,8 @@ class TicketsController < ApplicationController
       :block_id,
       :created_from,
       :created_to,
-      :q
+      :q,
+      :period
     )
 
     @tickets = @tickets
@@ -31,8 +32,15 @@ class TicketsController < ApplicationController
       @tickets = @tickets.where(unit_id: @filters[:unit_id])
     end
 
-    if @filters[:block_id].present?
+    if !current_user.resident? && @filters[:block_id].present?
       @tickets = @tickets.joins(unit: :block).where(blocks: { id: @filters[:block_id] })
+    end
+
+    if current_user.resident? && @filters[:period].present?
+      days = @filters[:period].to_i
+      if [7, 30, 90].include?(days)
+        @tickets = @tickets.where("tickets.created_at >= ?", days.days.ago.beginning_of_day)
+      end
     end
 
     if @filters[:created_from].present?
@@ -46,11 +54,28 @@ class TicketsController < ApplicationController
     end
 
     if @filters[:q].present?
-      q = "%#{@filters[:q].strip}%"
-      @tickets = @tickets.joins(:ticket_type, unit: :block).where(
-        "tickets.description ILIKE :q OR ticket_types.title ILIKE :q OR units.identifier ILIKE :q OR blocks.identification ILIKE :q",
-        q: q
-      )
+      query_text = @filters[:q].strip
+
+      if current_user.resident?
+        protocol_text = query_text.sub(/^#/, "")
+        q = "%#{query_text}%"
+
+        if protocol_text.match?(/\A\d+\z/)
+          @tickets = @tickets.joins(:ticket_type).where(
+            "tickets.id = :ticket_id OR ticket_types.title ILIKE :q",
+            ticket_id: protocol_text.to_i,
+            q: q
+          )
+        else
+          @tickets = @tickets.joins(:ticket_type).where("ticket_types.title ILIKE :q", q: q)
+        end
+      else
+        q = "%#{query_text}%"
+        @tickets = @tickets.joins(:ticket_type, unit: :block).where(
+          "tickets.description ILIKE :q OR ticket_types.title ILIKE :q OR units.identifier ILIKE :q OR blocks.identification ILIKE :q",
+          q: q
+        )
+      end
     end
   end
 

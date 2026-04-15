@@ -1,7 +1,12 @@
 <% provide(:title, "Chamados | Condomínio Dunnas") %>
 <% provide(:page_heading, "Chamados") %>
 
-<% filter_keys = %i[block_id created_from created_to q ticket_status_id ticket_type_id unit_id] %>
+<% resident_view = current_user.resident? %>
+<% filter_keys = if resident_view
+  %i[period q ticket_status_id unit_id]
+else
+  %i[block_id created_from created_to q ticket_status_id ticket_type_id unit_id]
+end %>
 <% filters_active = filter_keys.any? { |k| params[k].present? } %>
 
 <div class="w-full">
@@ -24,7 +29,37 @@
         </summary>
 
         <div class="mt-4 grid gap-4 md:grid-cols-4 items-end">
-          <% unless current_user.resident? %>
+          <% if resident_view %>
+            <div>
+              <%= label_tag :ticket_status_id, "Status", class: "mb-1 block text-sm font-bold text-slate-800" %>
+              <%= select_tag :ticket_status_id,
+              options_from_collection_for_select(TicketStatus.order(:name), :id, :name, params[:ticket_status_id]),
+              include_blank: "Todos",
+              class: "w-full rounded-lg border border-violet-200 bg-white p-2 text-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100" %>
+            </div>
+
+            <div>
+              <%= label_tag :period, "Periodo", class: "mb-1 block text-sm font-bold text-slate-800" %>
+              <%= select_tag :period,
+                options_for_select([
+                  ["Todos", ""],
+                  ["Ultimos 7 dias", "7"],
+                  ["Ultimos 30 dias", "30"],
+                  ["Ultimos 90 dias", "90"]
+                ], params[:period]),
+                class: "w-full rounded-lg border border-violet-200 bg-white p-2 text-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100" %>
+            </div>
+
+            <% if current_user.units.many? %>
+              <div>
+                <%= label_tag :unit_id, "Unidade", class: "mb-1 block text-sm font-bold text-slate-800" %>
+                <%= select_tag :unit_id,
+                options_from_collection_for_select(current_user.units.includes(:block), :id, :identifier, params[:unit_id]),
+                include_blank: "Todas",
+                class: "w-full rounded-lg border border-violet-200 bg-white p-2 text-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100" %>
+              </div>
+            <% end %>
+          <% else %>
             <div>
               <%= label_tag :block_id, "Bloco", class: "mb-1 block text-sm font-bold text-slate-800" %>
               <%= select_tag :block_id,
@@ -32,45 +67,34 @@
                 include_blank: "Todos",
                 class: "w-full rounded-lg border border-violet-200 bg-white p-2 text-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100" %>
             </div>
-          <% end %>
-
-          <div>
-            <%= label_tag :created_from, "De", class: "mb-1 block text-sm font-bold text-slate-800" %>
-            <%= date_field_tag :created_from, params[:created_from], class: "w-full rounded-lg border border-violet-200 bg-white p-2 text-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100" %>
-          </div>
-
-          <div>
-            <%= label_tag :created_to, "Ate", class: "mb-1 block text-sm font-bold text-slate-800" %>
-            <%= date_field_tag :created_to, params[:created_to], class: "w-full rounded-lg border border-violet-200 bg-white p-2 text-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100" %>
-          </div>
-
-          <div class="flex-1">
-            <%= label_tag :q, "Buscar", class: "mb-1 block text-sm font-bold text-slate-800" %>
-            <%= text_field_tag :q, params[:q], placeholder: "Descricao, tipo, bloco ou unidade...", class: "w-full rounded-lg border border-violet-200 bg-white p-2 text-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100" %>
-          </div>
-
-          <div>
-            <%= label_tag :ticket_status_id, "Status", class: "mb-1 block text-sm font-bold text-slate-800" %>
-            <%= select_tag :ticket_status_id,
-            options_from_collection_for_select(TicketStatus.order(:name), :id, :name, params[:ticket_status_id]),
-            include_blank: "Todos",
-            class: "w-full rounded-lg border border-violet-200 bg-white p-2 text-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100" %>
-          </div>
-
-          <div>
-            <%= label_tag :ticket_type_id, "Tipo", class: "mb-1 block text-sm font-bold text-slate-800" %>
-            <%= select_tag :ticket_type_id,
-            options_from_collection_for_select(TicketType.order(:title), :id, :title, params[:ticket_type_id]),
-            include_blank: "Todos",
-            class: "w-full rounded-lg border border-violet-200 bg-white p-2 text-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100" %>
-          </div>
-
-          <% if current_user.resident? %>
             <div>
-              <%= label_tag :unit_id, "Unidade", class: "mb-1 block text-sm font-bold text-slate-800" %>
-              <%= select_tag :unit_id,
-              options_from_collection_for_select(current_user.units.includes(:block), :id, :identifier, params[:unit_id]),
-              include_blank: "Todas",
+              <%= label_tag :created_from, "De", class: "mb-1 block text-sm font-bold text-slate-800" %>
+              <%= date_field_tag :created_from, params[:created_from], class: "w-full rounded-lg border border-violet-200 bg-white p-2 text-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100" %>
+            </div>
+
+            <div>
+              <%= label_tag :created_to, "Ate", class: "mb-1 block text-sm font-bold text-slate-800" %>
+              <%= date_field_tag :created_to, params[:created_to], class: "w-full rounded-lg border border-violet-200 bg-white p-2 text-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100" %>
+            </div>
+
+            <div class="flex-1">
+              <%= label_tag :q, "Buscar", class: "mb-1 block text-sm font-bold text-slate-800" %>
+              <%= text_field_tag :q, params[:q], placeholder: "Descricao, tipo, bloco ou unidade...", class: "w-full rounded-lg border border-violet-200 bg-white p-2 text-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100" %>
+            </div>
+
+            <div>
+              <%= label_tag :ticket_status_id, "Status", class: "mb-1 block text-sm font-bold text-slate-800" %>
+              <%= select_tag :ticket_status_id,
+              options_from_collection_for_select(TicketStatus.order(:name), :id, :name, params[:ticket_status_id]),
+              include_blank: "Todos",
+              class: "w-full rounded-lg border border-violet-200 bg-white p-2 text-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100" %>
+            </div>
+
+            <div>
+              <%= label_tag :ticket_type_id, "Tipo", class: "mb-1 block text-sm font-bold text-slate-800" %>
+              <%= select_tag :ticket_type_id,
+              options_from_collection_for_select(TicketType.order(:title), :id, :title, params[:ticket_type_id]),
+              include_blank: "Todos",
               class: "w-full rounded-lg border border-violet-200 bg-white p-2 text-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100" %>
             </div>
           <% end %>
@@ -90,6 +114,7 @@
           <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-violet-700">ID</th>
           <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-violet-700">Apartamento</th>
           <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-violet-700">Problema</th>
+          <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-violet-700">Aberto em</th>
           <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-violet-700">Status</th>
           <th scope="col" class="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-violet-700">Acoes</th>
         </tr>
@@ -106,6 +131,9 @@
             </td>
             <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
               <%= ticket.ticket_type.title %>
+            </td>
+            <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
+              <%= l(ticket.created_at, format: "%d/%m/%Y %H:%M") %>
             </td>
             <td class="whitespace-nowrap px-6 py-4">
               <span class="inline-flex rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold leading-5 text-violet-800">
