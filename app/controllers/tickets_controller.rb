@@ -114,6 +114,7 @@ class TicketsController < ApplicationController
   # PATCH/PUT /tickets/1 or /tickets/1.json
   def update
     @ticket.acting_user = current_user
+    closing_note = params.dig(:ticket, :closing_note).to_s.strip
 
     respond_to do |format|
       if @ticket.update(ticket_params)
@@ -127,7 +128,12 @@ class TicketsController < ApplicationController
             .new(ticket: @ticket, actor: current_user)
             .notify_status_changed(old_status_name: old_status_name, new_status_name: new_status_name)
 
-          unless reopening_transition?(old_status_id, new_status_id)
+          if concluding_transition?(old_status_id, new_status_id)
+            @ticket.comments.create!(
+              user: current_user,
+              body: "Status alterado de \"#{old_status_name}\" para \"#{new_status_name}\".\nParecer de conclusão: #{closing_note}"
+            )
+          elsif !reopening_transition?(old_status_id, new_status_id)
             @ticket.comments.create!(
               user: current_user,
               body: "Status alterado de \"#{old_status_name}\" para \"#{new_status_name}\"."
@@ -163,6 +169,13 @@ class TicketsController < ApplicationController
     old_status&.is_final? && !new_status&.is_final?
   end
 
+  def concluding_transition?(old_status_id, new_status_id)
+    old_status = TicketStatus.find_by(id: old_status_id)
+    new_status = TicketStatus.find_by(id: new_status_id)
+
+    !old_status&.is_final? && new_status&.is_final?
+  end
+
   def ensure_resident_has_units!
     return unless current_user.resident?
     return if current_user.units.exists?
@@ -175,9 +188,9 @@ class TicketsController < ApplicationController
       if action_name == "create"
         [:unit_id, :ticket_type_id, :description]
       elsif current_user.administrator?
-        [:description, :ticket_status_id, :reopen_reason]
+        [:description, :ticket_status_id, :reopen_reason, :closing_note]
       elsif current_user.collaborator?
-        [:ticket_status_id]
+        [:ticket_status_id, :closing_note]
       else
         []
       end
