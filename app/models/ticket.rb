@@ -19,7 +19,7 @@ class Ticket < ApplicationRecord
   has_many :notifications, dependent: :destroy
   has_many_attached :attachments
 
-  attr_accessor :acting_user, :reopen_reason
+  attr_accessor :acting_user, :reopen_reason, :closing_note
 
   validates :description, presence: true
   validates :ticket_status, presence: true
@@ -30,6 +30,8 @@ class Ticket < ApplicationRecord
   validate :resident_unit_must_be_linked, on: :create
   validate :resolved_at_only_when_final
   validate :validate_reopen_conditions, on: :update
+  validate :validate_closing_note_if_concluding, on: :update
+  validate :validate_status_transition_rules, on: :update
   validate :validate_attachments
 
   after_update_commit :log_reopen_action, if: :reopened?
@@ -83,8 +85,45 @@ class Ticket < ApplicationRecord
       return
     end
 
-    if reopen_reason.blank?
-      errors.add(:reopen_reason, "(Motivo) é obrigatório ao reabrir um chamado.")
+    if reopen_reason.to_s.strip.blank?
+      errors.add(:reopen_reason, "é obrigatório ao reabrir um chamado.")
+    end
+  end
+
+  def currently_concluding?
+    return false unless ticket_status_id_changed?
+
+    old_status_id, new_status_id = ticket_status_id_change
+    old_status = TicketStatus.find_by(id: old_status_id)
+    new_status = TicketStatus.find_by(id: new_status_id)
+
+    !old_status&.is_final? && new_status&.is_final?
+  end
+
+  def validate_closing_note_if_concluding
+    return unless currently_concluding?
+    return unless closing_note.to_s.strip.blank?
+
+    errors.add(:closing_note, "é obrigatório ao concluir um chamado.")
+  end
+
+  def validate_status_transition_rules
+    return unless ticket_status_id_changed?
+
+    old_status_id, new_status_id = ticket_status_id_change
+    old_status = TicketStatus.find_by(id: old_status_id)
+    new_status = TicketStatus.find_by(id: new_status_id)
+
+    old_key = normalized_status_name(old_status)
+    new_key = normalized_status_name(new_status)
+
+    if new_key == "reaberto" && !old_status&.is_final?
+      errors.add(:ticket_status, "Reaberto só pode ser definido ao reabrir um chamado concluído.")
+      return
+    end
+
+    if (old_key == "aberto" && new_key == "reaberto") || (old_key == "reaberto" && new_key == "aberto")
+      errors.add(:ticket_status, "não permite transição direta entre Aberto e Reaberto.")
     end
   end
 
@@ -101,8 +140,12 @@ class Ticket < ApplicationRecord
   def log_reopen_action
     comments.create!(
       user: acting_user || user,
-      body: "⚠️ Ação Automática: Chamado REABERTO.\nMotivo: #{reopen_reason}"
+      body: "Chamado reaberto automaticamente.\nMotivo informado: #{reopen_reason}"
     )
+  end
+
+  def normalized_status_name(status)
+    I18n.transliterate(status&.name.to_s).downcase.strip
   end
 
   def validate_attachments
