@@ -3,9 +3,9 @@
 
 <% resident_view = current_user.resident? %>
 <% filter_keys = if resident_view
-  %i[period q ticket_status_id unit_id]
+  %i[period q ticket_status_id unit_id sla_state]
 else
-  %i[block_id created_from created_to q ticket_status_id ticket_type_id unit_id]
+  %i[block_id created_from created_to q ticket_status_id ticket_type_id unit_id sla_state]
 end %>
 <% filters_active = filter_keys.any? { |k| params[k].present? } %>
 
@@ -99,6 +99,18 @@ end %>
             </div>
           <% end %>
 
+          <div>
+            <%= label_tag :sla_state, "SLA", class: "mb-1 block text-sm font-bold text-slate-800" %>
+            <%= select_tag :sla_state,
+              options_for_select([
+                ["Todos", ""],
+                ["No prazo", "on_time"],
+                ["Em risco", "at_risk"],
+                ["Vencido", "breached"]
+              ], params[:sla_state]),
+              class: "w-full rounded-lg border border-violet-200 bg-white p-2 text-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100" %>
+          </div>
+
           <div class="flex items-end gap-2">
             <%= submit_tag "Filtrar", class: "btn-brand px-4 py-2 text-sm" %>
             <%= link_to "Limpar", tickets_path, class: "btn-brand-soft px-4 py-2 text-sm" %>
@@ -116,6 +128,7 @@ end %>
           <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-violet-700">Problema</th>
           <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-violet-700">Aberto em</th>
           <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-violet-700">Atualizado em</th>
+          <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-violet-700">SLA</th>
           <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-violet-700">Status</th>
           <th scope="col" class="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-violet-700">Acoes</th>
         </tr>
@@ -138,6 +151,14 @@ end %>
             </td>
             <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
               <%= l(ticket.updated_at, format: "%d/%m/%Y %H:%M") %>
+            </td>
+            <td class="whitespace-nowrap px-6 py-4">
+              <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold leading-5 <%= ticket_sla_badge_classes(ticket) %>">
+                <%= ticket_sla_status_label(ticket) %>
+              </span>
+              <p class="mt-1 text-xs text-slate-500">
+                <%= ticket_sla_timing_label(ticket) %>
+              </p>
             </td>
             <td class="whitespace-nowrap px-6 py-4">
               <span class="inline-flex rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold leading-5 text-violet-800">
