@@ -81,19 +81,46 @@
   </div>
 
   <% if can?(:update, @ticket) %>
+          <% ordered_statuses = TicketStatus.order(:name) %>
+      <% current_status_key = I18n.transliterate(@ticket.ticket_status&.name.to_s).downcase.strip %>
           <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-4 mb-6">
             <h3 class="text-sm font-bold text-gray-900 mb-3">Atualizar Status</h3>
 
-            <%= form_with(model: @ticket, local: true, class: "flex flex-col sm:flex-row gap-3 items-start sm:items-end") do |f| %>
+            <%= form_with(model: @ticket, local: true, class: "flex flex-col sm:flex-row gap-3 items-start sm:items-end", data: { status_form: true, current_final: @ticket.ticket_status&.is_final? }) do |f| %>
               <div class="w-full sm:w-72">
                 <%= f.label :ticket_status_id, "Status", class: "block mb-2 text-sm font-bold text-gray-800" %>
-                <%= f.collection_select :ticket_status_id, TicketStatus.order(:name), :id, :name, {}, class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-3 focus:ring-violet-200 focus:border-violet-500" %>
+                <%= f.select :ticket_status_id,
+                  options_for_select(
+                    ordered_statuses.map do |status|
+                      status_key = I18n.transliterate(status.name.to_s).downcase.strip
+                      invalid_direct_transition = (current_status_key == "aberto" && status_key == "reaberto") || (current_status_key == "reaberto" && status_key == "aberto")
+                      invalid_reopen_target = status_key == "reaberto" && !@ticket.ticket_status&.is_final?
+
+                      [
+                        status.name,
+                        status.id,
+                        {
+                          "data-final" => status.is_final?,
+                          disabled: invalid_direct_transition || invalid_reopen_target
+                        }
+                      ]
+                    end,
+                    @ticket.ticket_status_id
+                  ),
+                  {},
+                  class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-3 focus:ring-violet-200 focus:border-violet-500",
+                  data: { status_select: true } %>
               </div>
 
-              <% if @ticket.ticket_status&.is_final? && current_user.administrator? %>
-                <div class="w-full sm:w-96">
+              <div class="w-full sm:w-96" data-closing-note-field>
+                <%= f.label :closing_note, "Parecer (Obrigatório ao concluir)", class: "block mb-2 text-sm font-bold text-gray-800" %>
+                <%= f.text_area :closing_note, rows: 2, placeholder: "Ex: Vazamento corrigido, teste de estanqueidade realizado e area liberada.", class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-3 outline-none focus:ring-violet-200 focus:border-violet-500", data: { closing_note_input: true } %>
+              </div>
+
+              <% if current_user.administrator? %>
+                <div class="w-full sm:w-96" data-reopen-reason-field>
                   <%= f.label :reopen_reason, "Motivo (Obrigatório caso vá reabrir)", class: "block mb-2 text-sm font-bold text-red-800" %>
-                  <%= f.text_field :reopen_reason, placeholder: "Ex: Diagnóstico incompleto", class: "bg-red-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-3 outline-none focus:ring-red-500 focus:border-red-500" %>
+                  <%= f.text_field :reopen_reason, placeholder: "Ex: Diagnóstico incompleto", class: "bg-red-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-3 outline-none focus:ring-red-500 focus:border-red-500", data: { reopen_reason_input: true } %>
                 </div>
               <% end %>
 
@@ -195,5 +222,43 @@
         closeLightbox();
       }
     });
+
+    const statusForm = document.querySelector('[data-status-form="true"]');
+    if (statusForm) {
+      const statusSelect = statusForm.querySelector('[data-status-select="true"]');
+      const closingNoteField = statusForm.querySelector("[data-closing-note-field]");
+      const reopenReasonField = statusForm.querySelector("[data-reopen-reason-field]");
+      const closingNoteInput = statusForm.querySelector('[data-closing-note-input="true"]');
+      const reopenReasonInput = statusForm.querySelector('[data-reopen-reason-input="true"]');
+      const currentIsFinal = statusForm.dataset.currentFinal === "true";
+
+      const toggleStatusSpecificFields = function() {
+        if (!statusSelect) return;
+
+        const selectedOption = statusSelect.options[statusSelect.selectedIndex];
+        const selectedIsFinal = selectedOption && selectedOption.dataset.final === "true";
+        const concluding = !currentIsFinal && selectedIsFinal;
+        const reopening = currentIsFinal && !selectedIsFinal;
+
+        if (closingNoteField) {
+          closingNoteField.classList.toggle("hidden", !concluding);
+        }
+        if (closingNoteInput) {
+          closingNoteInput.required = concluding;
+          if (!concluding) closingNoteInput.value = "";
+        }
+
+        if (reopenReasonField) {
+          reopenReasonField.classList.toggle("hidden", !reopening);
+        }
+        if (reopenReasonInput) {
+          reopenReasonInput.required = reopening;
+          if (!reopening) reopenReasonInput.value = "";
+        }
+      };
+
+      statusSelect.addEventListener("change", toggleStatusSpecificFields);
+      toggleStatusSpecificFields();
+    }
   });
 </script>
