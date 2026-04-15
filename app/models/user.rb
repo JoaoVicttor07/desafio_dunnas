@@ -18,8 +18,8 @@ class User < ApplicationRecord
     return unless will_save_change_to_role?
 
     old_role_value, new_role_value = role_change_to_be_saved
-    old_role = self.class.roles.key(old_role_value)
-    new_role = self.class.roles.key(new_role_value)
+    old_role = normalize_role_change_value(old_role_value)
+    new_role = normalize_role_change_value(new_role_value)
 
     return unless old_role == "administrator" && new_role != "administrator"
 
@@ -27,5 +27,11 @@ class User < ApplicationRecord
     return if other_admin_exists
 
     errors.add(:role, "não pode ser alterada: este é o último administrador do sistema")
+  end
+
+  def normalize_role_change_value(value)
+    return value if self.class.roles.key?(value)
+
+    self.class.roles.key(value)
   end
 end
