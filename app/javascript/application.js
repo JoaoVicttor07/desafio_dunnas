@@ -24,6 +24,27 @@ document.addEventListener("turbo:render", () => {
 document.addEventListener("turbo:load", () => {
 	animatePageEntry()
 
+	const desktopNav = document.querySelector("#desktop-nav")
+	const desktopToggle = document.querySelector("[data-desktop-nav-toggle]")
+
+	if (desktopNav && desktopToggle) {
+		const collapsedClass = "desktop-nav-collapsed"
+
+		const setDesktopCollapsed = (collapsed) => {
+			document.body.classList.toggle(collapsedClass, collapsed)
+			desktopToggle.setAttribute("aria-expanded", (!collapsed).toString())
+			desktopToggle.setAttribute("aria-label", collapsed ? "Expandir menu lateral" : "Recolher menu lateral")
+			localStorage.setItem("desktopNavCollapsed", collapsed ? "1" : "0")
+		}
+
+		const savedCollapsed = localStorage.getItem("desktopNavCollapsed") === "1"
+		setDesktopCollapsed(savedCollapsed)
+
+		desktopToggle.onclick = () => {
+			setDesktopCollapsed(!document.body.classList.contains(collapsedClass))
+		}
+	}
+
 	const drawer = document.querySelector("#mobile-nav")
 	const overlay = document.querySelector("#mobile-nav-overlay")
 	const openButton = document.querySelector("[data-nav-open]")
