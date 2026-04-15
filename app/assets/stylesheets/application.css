@@ -108,3 +108,24 @@ details > summary {
 details > summary::-webkit-details-marker {
 	display: none;
 }
+
+@media (min-width: 1024px) {
+	.desktop-nav-edge-toggle {
+		left: 0;
+		transition: left 220ms ease, background-color 180ms ease;
+	}
+
+	body:not(.desktop-nav-collapsed) .desktop-nav-edge-toggle {
+		left: calc(18rem - 0.5rem);
+		background: rgba(255, 255, 255, 0.94);
+	}
+
+	body.desktop-nav-collapsed #desktop-nav {
+		width: 0 !important;
+		min-width: 0 !important;
+		padding: 0 !important;
+		overflow: hidden;
+		opacity: 0;
+		pointer-events: none;
+	}
+}
