@@ -29,7 +29,7 @@ class TicketsController < ApplicationController
       @tickets = @tickets.where(ticket_type_id: @filters[:ticket_type_id])
     end
 
-    if @filters[:sla_state].present?
+    if @filters[:sla_state].present? && !current_user.resident?
       @tickets = apply_sla_state_filter(@tickets, @filters[:sla_state])
     end
 
