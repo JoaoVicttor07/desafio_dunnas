@@ -1,4 +1,14 @@
 class TicketsController < ApplicationController
+  INDEX_PER_PAGE = 10
+  INDEX_PER_PAGE_OPTIONS = [10, 20, 50].freeze
+  INDEX_SORT_OPTIONS = %w[id created_at updated_at sla_due_at ticket_type ticket_status apartment].freeze
+  INDEX_SORT_COLUMNS = {
+    "id" => "tickets.id",
+    "created_at" => "tickets.created_at",
+    "updated_at" => "tickets.updated_at",
+    "sla_due_at" => "tickets.sla_due_at"
+  }.freeze
+
   before_action :authenticate_user!
   before_action :ensure_resident_has_units!, only: %i[new create]
   load_and_authorize_resource
@@ -11,6 +21,9 @@ class TicketsController < ApplicationController
       :unit_id,
       :block_id,
       :sla_state,
+      :sort_by,
+      :sort_dir,
+      :per_page,
       :created_from,
       :created_to,
       :q,
@@ -19,7 +32,11 @@ class TicketsController < ApplicationController
 
     @tickets = @tickets
     .includes(:ticket_status, :ticket_type, unit: :block)
-    .order(created_at: :desc)
+
+    @sort_by = INDEX_SORT_OPTIONS.include?(@filters[:sort_by]) ? @filters[:sort_by] : "created_at"
+    @sort_dir = %w[asc desc].include?(@filters[:sort_dir]) ? @filters[:sort_dir] : "desc"
+    @per_page = @filters[:per_page].to_i
+    @per_page = INDEX_PER_PAGE unless INDEX_PER_PAGE_OPTIONS.include?(@per_page)
 
     if @filters[:ticket_status_id].present?
       @tickets = @tickets.where(ticket_status_id: @filters[:ticket_status_id])
@@ -48,13 +65,13 @@ class TicketsController < ApplicationController
       end
     end
 
-    if @filters[:created_from].present?
-      from = Date.parse(@filters[:created_from]) rescue nil
-      @tickets = @tickets.where("tickets.created_at >= ?", from.beginning_of_day) if from
-  end
+    from = parse_date_param(@filters[:created_from])
+    to = parse_date_param(@filters[:created_to])
 
-    if @filters[:created_to].present?
-      to = Date.parse(@filters[:created_to]) rescue nil
+    if from.present? && to.present? && to < from
+      @date_filter_error = "Não é possível filtrar uma data final antes da data inicial."
+    else
+      @tickets = @tickets.where("tickets.created_at >= ?", from.beginning_of_day) if from
       @tickets = @tickets.where("tickets.created_at <= ?", to.end_of_day) if to
     end
 
@@ -82,6 +99,18 @@ class TicketsController < ApplicationController
         )
       end
     end
+
+    @tickets = apply_sort(@tickets, @sort_by, @sort_dir)
+
+    @total_tickets = @tickets.count
+    @total_pages = [(@total_tickets.to_f / @per_page).ceil, 1].max
+
+    @page = params[:page].to_i
+    @page = 1 if @page < 1
+    @page = @total_pages if @page > @total_pages
+
+    offset = (@page - 1) * @per_page
+    @tickets = @tickets.offset(offset).limit(@per_page)
   end
 
   # GET /tickets/1 or /tickets/1.json
@@ -160,12 +189,38 @@ class TicketsController < ApplicationController
     @ticket.destroy!
 
     respond_to do |format|
-      format.html { redirect_to tickets_path, notice: "Chamado excluido com sucesso.", status: :see_other }
+      format.html { redirect_to tickets_path, notice: "Chamado excluído com sucesso.", status: :see_other }
       format.json { head :no_content }
     end
   end
 
   private
+
+  def parse_date_param(value)
+    return nil if value.blank?
+
+    Date.parse(value)
+  rescue ArgumentError
+    nil
+  end
+
+  def apply_sort(scope, sort_by, sort_dir)
+    direction = sort_dir == "asc" ? "ASC" : "DESC"
+
+    case sort_by
+    when "ticket_type"
+      scope.joins(:ticket_type).order(Arel.sql("ticket_types.title #{direction}, tickets.id DESC"))
+    when "ticket_status"
+      scope.joins(:ticket_status).order(Arel.sql("ticket_statuses.name #{direction}, tickets.id DESC"))
+    when "apartment"
+      scope.joins(unit: :block).order(Arel.sql("blocks.identification #{direction}, units.identifier #{direction}, tickets.id DESC"))
+    when "sla_due_at"
+      scope.order(Arel.sql("tickets.sla_due_at #{direction} NULLS LAST, tickets.id DESC"))
+    else
+      column = INDEX_SORT_COLUMNS[sort_by] || INDEX_SORT_COLUMNS["created_at"]
+      scope.order(Arel.sql("#{column} #{direction}, tickets.id DESC"))
+    end
+  end
 
   def apply_sla_state_filter(scope, sla_state)
     reference_time = Time.current
