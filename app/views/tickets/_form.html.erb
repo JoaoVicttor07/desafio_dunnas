@@ -9,14 +9,23 @@
   blocks_scope = Block.joins(:units).where(units: { id: units_scope.select(:id) }).distinct
 
   selected_unit_id = ticket.unit_id.presence
-  selected_block_id = params[:block_select].presence
+  selected_block_id = params[:block_select].presence || params.dig(:ticket, :block_id).presence
 
   if selected_unit_id.present?
     selected_block_id ||= Unit.where(id: selected_unit_id).pick(:block_id)
   end
 
   selected_block_id = selected_block_id.to_i if selected_block_id.present?
-  unit_options = selected_block_id.present? ? (units_scope.where(block_id: selected_block_id).pluck(:id, :identifier)) : []
+
+  unit_options =
+    if selected_block_id.present?
+      units_scope.where(block_id: selected_block_id).pluck(:id, :identifier)
+    elsif current_user&.resident?
+      # Resident fallback keeps the field usable even if block state is lost after validation errors.
+      units_scope.pluck(:id, :identifier)
+    else
+      []
+    end
 
   units_by_block =
     units_scope
@@ -40,7 +49,8 @@ end %>
   </div>
 <% end %>
 
-<%= form_with(model: ticket, class: "space-y-6") do |form| %>
+<%= form_with(model: ticket, local: true, class: "space-y-6") do |form| %>
+  <%= hidden_field_tag "ticket[block_id]", selected_block_id, id: "ticket-block-id" %>
   
   <% if ticket.errors.any? %>
     <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-r-lg">
@@ -140,6 +150,7 @@ end %>
 <script>
   document.addEventListener("turbo:load", function() {
     const blockSelect = document.getElementById("block-select");
+    const blockHiddenInput = document.getElementById("ticket-block-id");
     const unitSelect = document.getElementById("unit-select");
     const attachmentsInput = document.getElementById("ticket_attachments");
     const addAttachmentButton = document.getElementById("add-attachment-button");
@@ -272,7 +283,15 @@ end %>
       populateUnits(blockSelect.value, selectedUnitId);
     }
 
+    if (blockHiddenInput && blockSelect.value) {
+      blockHiddenInput.value = blockSelect.value;
+    }
+
     blockSelect.onchange = function() {
+      if (blockHiddenInput) {
+        blockHiddenInput.value = this.value;
+      }
+
       populateUnits(this.value, null);
     };
   });
