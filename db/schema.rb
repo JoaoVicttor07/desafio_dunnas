@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_04_14_230000) do
+ActiveRecord::Schema[7.2].define(version: 2026_04_15_113000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -102,6 +102,13 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_14_230000) do
     t.datetime "resolved_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "sla_started_at"
+    t.datetime "sla_due_at"
+    t.datetime "sla_breached_at"
+    t.integer "sla_cycle", default: 1, null: false
+    t.index ["sla_breached_at"], name: "index_tickets_on_sla_breached_at"
+    t.index ["sla_due_at"], name: "index_tickets_on_sla_due_at"
+    t.index ["ticket_status_id", "sla_due_at"], name: "index_tickets_on_ticket_status_id_and_sla_due_at"
     t.index ["ticket_status_id"], name: "index_tickets_on_ticket_status_id"
     t.index ["ticket_type_id"], name: "index_tickets_on_ticket_type_id"
     t.index ["unit_id"], name: "index_tickets_on_unit_id"
