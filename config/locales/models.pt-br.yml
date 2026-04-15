@@ -26,6 +26,8 @@ pt-BR:
         ticket_status: "Status"
         reopen_reason: "Motivo"
         closing_note: "Parecer"
+      comment:
+        body: "Mensagem"
     errors:
       models:
         user:
