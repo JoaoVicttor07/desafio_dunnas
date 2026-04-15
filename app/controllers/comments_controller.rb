@@ -8,6 +8,7 @@ class CommentsController < ApplicationController
         @comment.user = current_user
 
         if @comment.save
+            ::TicketNotificationService.new(ticket: @ticket, actor: current_user).notify_comment_created
             redirect_to @ticket, notice: "Comentário adicionado com sucesso."
         else
             redirect_to @ticket, alert: @comment.errors.full_messages.to_sentence

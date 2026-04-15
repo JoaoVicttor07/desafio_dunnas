@@ -117,6 +117,24 @@ class TicketsController < ApplicationController
 
     respond_to do |format|
       if @ticket.update(ticket_params)
+        status_change = @ticket.saved_change_to_ticket_status_id
+        if status_change.present?
+          old_status_id, new_status_id = status_change
+          old_status_name = TicketStatus.find_by(id: old_status_id)&.name || "Sem status"
+          new_status_name = TicketStatus.find_by(id: new_status_id)&.name || "Sem status"
+
+          ::TicketNotificationService
+            .new(ticket: @ticket, actor: current_user)
+            .notify_status_changed(old_status_name: old_status_name, new_status_name: new_status_name)
+
+          unless reopening_transition?(old_status_id, new_status_id)
+            @ticket.comments.create!(
+              user: current_user,
+              body: "Status alterado de \"#{old_status_name}\" para \"#{new_status_name}\"."
+            )
+          end
+        end
+
         format.html { redirect_to @ticket, notice: "Chamado atualizado com sucesso.", status: :see_other }
         format.json { render :show, status: :ok, location: @ticket }
       else
@@ -137,6 +155,13 @@ class TicketsController < ApplicationController
   end
 
   private
+
+  def reopening_transition?(old_status_id, new_status_id)
+    old_status = TicketStatus.find_by(id: old_status_id)
+    new_status = TicketStatus.find_by(id: new_status_id)
+
+    old_status&.is_final? && !new_status&.is_final?
+  end
 
   def ensure_resident_has_units!
     return unless current_user.resident?
