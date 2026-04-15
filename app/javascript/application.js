@@ -34,6 +34,7 @@ document.addEventListener("turbo:load", () => {
 			document.body.classList.toggle(collapsedClass, collapsed)
 			desktopToggle.setAttribute("aria-expanded", (!collapsed).toString())
 			desktopToggle.setAttribute("aria-label", collapsed ? "Expandir menu lateral" : "Recolher menu lateral")
+			desktopToggle.setAttribute("title", collapsed ? "Expandir menu lateral" : "Recolher menu lateral")
 			localStorage.setItem("desktopNavCollapsed", collapsed ? "1" : "0")
 		}
 
