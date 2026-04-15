@@ -1,4 +1,5 @@
 class Ticket < ApplicationRecord
+  SLA_AT_RISK_WINDOW = 4.hours
   MAX_ATTACHMENT_SIZE = 5.megabytes
   MAX_ATTACHMENTS = 1
   ALLOWED_ATTACHMENT_CONTENT_TYPES = %w[
@@ -25,7 +26,10 @@ class Ticket < ApplicationRecord
   validates :ticket_status, presence: true
 
   before_validation :set_default_status, on: :create
+  before_validation :initialize_sla_cycle, on: :create
+  before_validation :restart_sla_cycle_if_reopened, on: :update
   before_validation :sync_resolved_at_with_status
+  before_save :sync_sla_breached_at
 
   validate :resident_unit_must_be_linked, on: :create
   validate :resolved_at_only_when_final
@@ -36,6 +40,31 @@ class Ticket < ApplicationRecord
 
   after_update_commit :log_reopen_action, if: :transitioned_to_reopened?
 
+  scope :with_sla, -> { where.not(sla_due_at: nil) }
+  scope :sla_breached, ->(reference_time = Time.current) {
+    with_sla.where(
+      "(tickets.resolved_at IS NULL AND tickets.sla_due_at < :reference_time) OR " \
+      "(tickets.resolved_at IS NOT NULL AND tickets.resolved_at > tickets.sla_due_at)",
+      reference_time: reference_time
+    )
+  }
+  scope :sla_at_risk, ->(reference_time = Time.current, window: SLA_AT_RISK_WINDOW) {
+    threshold = reference_time + window
+    with_sla.where(
+      "tickets.resolved_at IS NULL AND tickets.sla_due_at >= :reference_time AND tickets.sla_due_at <= :threshold",
+      reference_time: reference_time,
+      threshold: threshold
+    )
+  }
+  scope :sla_on_time, ->(reference_time = Time.current, window: SLA_AT_RISK_WINDOW) {
+    threshold = reference_time + window
+    with_sla.where(
+      "(tickets.resolved_at IS NOT NULL AND tickets.resolved_at <= tickets.sla_due_at) OR " \
+      "(tickets.resolved_at IS NULL AND tickets.sla_due_at > :threshold)",
+      threshold: threshold
+    )
+  }
+
   def allowed_next_statuses_for(user)
     status = ticket_status || TicketStatus.find_by(is_default: true)
     keys = allowed_next_status_keys_for(status, user)
@@ -43,10 +72,55 @@ class Ticket < ApplicationRecord
     TicketStatus.order(:name).select { |ticket_status| keys.include?(normalized_status_name(ticket_status)) }
   end
 
+  def sla_status_key(reference_time = Time.current)
+    return :no_sla if sla_due_at.blank?
+    return :breached if sla_breached?(reference_time)
+    return :on_time if ticket_status&.is_final?
+    return :at_risk if reference_time >= (sla_due_at - SLA_AT_RISK_WINDOW)
+
+    :on_time
+  end
+
+  def sla_breached?(reference_time = Time.current)
+    return false if sla_due_at.blank?
+
+    reference = resolved_at || reference_time
+    reference > sla_due_at
+  end
+
+  def sla_delta_seconds(reference_time = Time.current)
+    return nil if sla_due_at.blank?
+
+    reference = resolved_at || reference_time
+    (sla_due_at - reference).to_i
+  end
+
   private
 
   def set_default_status
     self.ticket_status ||= TicketStatus.find_by(is_default: true)
+  end
+
+  def initialize_sla_cycle
+    return if ticket_type.blank? || ticket_type.sla_hours.blank?
+
+    started_at = sla_started_at || Time.current
+
+    self.sla_cycle = 1 if sla_cycle.blank? || sla_cycle <= 0
+    self.sla_started_at = started_at
+    self.sla_due_at ||= calculate_sla_due_at(started_at)
+  end
+
+  def restart_sla_cycle_if_reopened
+    return unless transitioning_to_reopened?
+    return if ticket_type.blank? || ticket_type.sla_hours.blank?
+
+    started_at = Time.current
+
+    self.sla_cycle = (sla_cycle || 1) + 1
+    self.sla_started_at = started_at
+    self.sla_due_at = calculate_sla_due_at(started_at)
+    self.sla_breached_at = nil
   end
 
   def resident_unit_must_be_linked
@@ -65,6 +139,16 @@ class Ticket < ApplicationRecord
       self.resolved_at ||= Time.current
     else
       self.resolved_at = nil
+    end
+  end
+
+  def sync_sla_breached_at
+    return if sla_due_at.blank?
+
+    if sla_breached?
+      self.sla_breached_at ||= (resolved_at || Time.current)
+    elsif resolved_at.present? && resolved_at <= sla_due_at
+      self.sla_breached_at = nil
     end
   end
 
@@ -147,6 +231,10 @@ class Ticket < ApplicationRecord
       user: acting_user || user,
       body: "Chamado reaberto automaticamente.\nMotivo informado: #{reopen_reason}"
     )
+  end
+
+  def calculate_sla_due_at(started_at)
+    started_at + ticket_type.sla_hours.hours
   end
 
   def allowed_next_status_keys_for(status, user = nil)
