@@ -34,7 +34,19 @@ class Ticket < ApplicationRecord
   validate :validate_status_transition_rules, on: :update
   validate :validate_attachments
 
-  after_update_commit :log_reopen_action, if: :reopened?
+  after_update_commit :log_reopen_action, if: :transitioned_to_reopened?
+
+  def allowed_next_statuses_for(user)
+    status = ticket_status || TicketStatus.find_by(is_default: true)
+    keys = case normalized_status_name(status)
+           when "concluido"
+             user&.administrator? ? ["reaberto"] : []
+           else
+             allowed_next_status_keys_for(status)
+           end
+
+    TicketStatus.order(:name).select { |ticket_status| keys.include?(normalized_status_name(ticket_status)) }
+  end
 
   private
 
@@ -67,18 +79,8 @@ class Ticket < ApplicationRecord
     errors.add(:resolved_at, "só pode existir quando o chamado estiver concluído")
   end
 
-  def currently_reopening?
-    return false unless ticket_status_id_changed?
-
-    old_status_id, new_status_id = ticket_status_id_change
-    old_status = TicketStatus.find_by(id: old_status_id)
-    new_status = TicketStatus.find_by(id: new_status_id)
-
-    old_status&.is_final? && !new_status&.is_final?
-  end
-
   def validate_reopen_conditions
-    return unless currently_reopening?
+    return unless transitioning_to_reopened?
 
     unless acting_user&.administrator?
       errors.add(:base, "Apenas administradores podem reabrir chamados concluídos.")
@@ -116,25 +118,33 @@ class Ticket < ApplicationRecord
 
     old_key = normalized_status_name(old_status)
     new_key = normalized_status_name(new_status)
+    allowed_keys = allowed_next_status_keys_for(old_status)
 
-    if new_key == "reaberto" && !old_status&.is_final?
-      errors.add(:ticket_status, "Reaberto só pode ser definido ao reabrir um chamado concluído.")
-      return
-    end
+    return if old_key == new_key
 
-    if (old_key == "aberto" && new_key == "reaberto") || (old_key == "reaberto" && new_key == "aberto")
-      errors.add(:ticket_status, "não permite transição direta entre Aberto e Reaberto.")
+    unless allowed_keys.include?(new_key)
+      errors.add(:ticket_status, "não permite a transição de #{status_label(old_status)} para #{status_label(new_status)}.")
     end
   end
 
-  def reopened?
+  def transitioned_to_reopened?
     return false unless saved_change_to_ticket_status_id?
-    
+
     old_status_id, new_status_id = saved_change_to_ticket_status_id
     old_status = TicketStatus.find_by(id: old_status_id)
     new_status = TicketStatus.find_by(id: new_status_id)
 
-    old_status&.is_final? && !new_status&.is_final?
+    old_status&.is_final? && normalized_status_name(new_status) == "reaberto"
+  end
+
+  def transitioning_to_reopened?
+    return false unless ticket_status_id_changed?
+
+    old_status_id, new_status_id = ticket_status_id_change
+    old_status = TicketStatus.find_by(id: old_status_id)
+    new_status = TicketStatus.find_by(id: new_status_id)
+
+    old_status&.is_final? && normalized_status_name(new_status) == "reaberto"
   end
 
   def log_reopen_action
@@ -142,6 +152,27 @@ class Ticket < ApplicationRecord
       user: acting_user || user,
       body: "Chamado reaberto automaticamente.\nMotivo informado: #{reopen_reason}"
     )
+  end
+
+  def allowed_next_status_keys_for(status)
+    case normalized_status_name(status)
+    when "aberto"
+      ["em andamento", "concluido"]
+    when "em andamento"
+      ["concluido"]
+    when "concluido"
+      acting_user&.administrator? ? ["reaberto"] : []
+    when "reaberto"
+      ["concluido"]
+    else
+      []
+    end
+  end
+
+  def status_label(status)
+    return "Sem status" if status.blank?
+
+    status.name
   end
 
   def normalized_status_name(status)
