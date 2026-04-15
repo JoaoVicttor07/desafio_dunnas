@@ -38,12 +38,7 @@ class Ticket < ApplicationRecord
 
   def allowed_next_statuses_for(user)
     status = ticket_status || TicketStatus.find_by(is_default: true)
-    keys = case normalized_status_name(status)
-           when "concluido"
-             user&.administrator? ? ["reaberto"] : []
-           else
-             allowed_next_status_keys_for(status)
-           end
+    keys = allowed_next_status_keys_for(status, user)
 
     TicketStatus.order(:name).select { |ticket_status| keys.include?(normalized_status_name(ticket_status)) }
   end
@@ -118,7 +113,7 @@ class Ticket < ApplicationRecord
 
     old_key = normalized_status_name(old_status)
     new_key = normalized_status_name(new_status)
-    allowed_keys = allowed_next_status_keys_for(old_status)
+    allowed_keys = allowed_next_status_keys_for(old_status, acting_user)
 
     return if old_key == new_key
 
@@ -154,16 +149,16 @@ class Ticket < ApplicationRecord
     )
   end
 
-  def allowed_next_status_keys_for(status)
+  def allowed_next_status_keys_for(status, user = nil)
     case normalized_status_name(status)
     when "aberto"
-      ["em andamento", "concluido"]
+      user&.administrator? ? ["em andamento", "concluido"] : ["em andamento"]
     when "em andamento"
       ["concluido"]
     when "concluido"
-      acting_user&.administrator? ? ["reaberto"] : []
+      user&.administrator? ? ["reaberto"] : []
     when "reaberto"
-      ["concluido"]
+      user&.administrator? ? ["em andamento", "concluido"] : ["em andamento"]
     else
       []
     end
