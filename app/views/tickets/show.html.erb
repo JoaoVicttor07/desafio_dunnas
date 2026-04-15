@@ -85,48 +85,87 @@
           <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-4 mb-6">
             <h3 class="text-sm font-bold text-gray-900 mb-3">Atualizar Status</h3>
 
-            <% if allowed_next_statuses.any? %>
-              <%= form_with(model: @ticket, local: true, class: "flex flex-col sm:flex-row gap-3 items-start sm:items-end", data: { status_form: true }) do |f| %>
-                <div class="w-full sm:w-72">
-                  <%= f.label :ticket_status_id, "Status", class: "block mb-2 text-sm font-bold text-gray-800" %>
-                  <%= f.select :ticket_status_id,
-                    options_for_select(
-                      allowed_next_statuses.map do |status|
-                        [
-                          status.name,
-                          status.id,
-                          {
-                            "data-key" => I18n.transliterate(status.name.to_s).downcase.strip
-                          }
-                        ]
-                      end,
-                      allowed_next_statuses.first.id
-                    ),
-                    {},
-                    class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-3 focus:ring-violet-200 focus:border-violet-500",
-                    data: { status_select: true } %>
-                </div>
+            <% if current_user.collaborator? %>
+              <% current_status_key = I18n.transliterate(@ticket.ticket_status.name.to_s).downcase.strip %>
 
-                <div class="w-full sm:w-96 hidden" data-closing-note-field>
-                  <%= f.label :closing_note, "Parecer (Obrigatório ao concluir)", class: "block mb-2 text-sm font-bold text-gray-800" %>
-                  <%= f.text_area :closing_note, rows: 2, placeholder: "Ex: Vazamento corrigido, teste de estanqueidade realizado e area liberada.", class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-3 outline-none focus:ring-violet-200 focus:border-violet-500", data: { closing_note_input: true } %>
-                </div>
+              <% if allowed_next_statuses.any? %>
+                <% next_status = allowed_next_statuses.first %>
 
-                <% if current_user.administrator? %>
-                  <div class="w-full sm:w-96 hidden" data-reopen-reason-field>
-                    <%= f.label :reopen_reason, "Motivo (Obrigatório caso vá reabrir)", class: "block mb-2 text-sm font-bold text-red-800" %>
-                    <%= f.text_field :reopen_reason, placeholder: "Ex: Diagnóstico incompleto", class: "bg-red-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-3 outline-none focus:ring-red-500 focus:border-red-500", data: { reopen_reason_input: true } %>
-                  </div>
+                <% if current_status_key == "em andamento" %>
+                  <%= form_with(model: @ticket, local: true, class: "flex flex-col gap-3", data: { conclude_form: true }) do |f| %>
+                    <%= f.hidden_field :ticket_status_id, value: next_status.id %>
+
+                    <div>
+                      <button type="button" data-conclude-toggle class="btn-brand px-6 py-2 text-sm">Concluir chamado</button>
+                    </div>
+
+                    <div class="hidden space-y-3 rounded-xl border border-violet-100 bg-violet-50/60 p-4" data-conclude-box>
+                      <div>
+                        <%= f.label :closing_note, "Parecer da conclusão", class: "block mb-2 text-sm font-bold text-gray-800" %>
+                        <%= f.text_area :closing_note, rows: 3, placeholder: "Descreva o que foi feito para concluir o chamado...", class: "bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-3 outline-none focus:ring-violet-200 focus:border-violet-500", data: { closing_note_input: true } %>
+                      </div>
+
+                      <div class="flex flex-wrap items-center gap-3">
+                        <%= f.submit "Confirmar conclusão", class: "btn-brand px-6 py-2 text-sm" %>
+                        <button type="button" data-conclude-cancel class="rounded-xl border border-slate-300 bg-white px-6 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancelar</button>
+                      </div>
+                    </div>
+                  <% end %>
+                <% else %>
+                  <%= form_with(model: @ticket, local: true, class: "flex flex-wrap items-center gap-3") do |f| %>
+                    <%= f.hidden_field :ticket_status_id, value: next_status.id %>
+                    <%= f.submit "Atender chamado", class: "btn-brand px-6 py-2 text-sm" %>
+                  <% end %>
                 <% end %>
-
-                <div>
-                  <%= f.submit "Salvar", class: "btn-brand px-6 py-2 text-sm" %>
-                </div>
+              <% else %>
+                <p class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                  Nenhuma transição de status disponível para este chamado neste momento.
+                </p>
               <% end %>
             <% else %>
-              <p class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                Nenhuma transição de status disponível para este chamado neste momento.
-              </p>
+              <% if allowed_next_statuses.any? %>
+                <%= form_with(model: @ticket, local: true, class: "flex flex-col sm:flex-row gap-3 items-start sm:items-end", data: { status_form: true }) do |f| %>
+                  <div class="w-full sm:w-72">
+                    <%= f.label :ticket_status_id, "Status", class: "block mb-2 text-sm font-bold text-gray-800" %>
+                    <%= f.select :ticket_status_id,
+                      options_for_select(
+                        allowed_next_statuses.map do |status|
+                          [
+                            status.name,
+                            status.id,
+                            {
+                              "data-key" => I18n.transliterate(status.name.to_s).downcase.strip
+                            }
+                          ]
+                        end,
+                        allowed_next_statuses.first.id
+                      ),
+                      {},
+                      class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-3 focus:ring-violet-200 focus:border-violet-500",
+                      data: { status_select: true } %>
+                  </div>
+
+                  <div class="w-full sm:w-96 hidden" data-closing-note-field>
+                    <%= f.label :closing_note, "Parecer (Obrigatório ao concluir)", class: "block mb-2 text-sm font-bold text-gray-800" %>
+                    <%= f.text_area :closing_note, rows: 2, placeholder: "Ex: Vazamento corrigido, teste de estanqueidade realizado e area liberada.", class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-3 outline-none focus:ring-violet-200 focus:border-violet-500", data: { closing_note_input: true } %>
+                  </div>
+
+                  <% if current_user.administrator? %>
+                    <div class="w-full sm:w-96 hidden" data-reopen-reason-field>
+                      <%= f.label :reopen_reason, "Motivo (Obrigatório caso vá reabrir)", class: "block mb-2 text-sm font-bold text-red-800" %>
+                      <%= f.text_field :reopen_reason, placeholder: "Ex: Diagnóstico incompleto", class: "bg-red-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-3 outline-none focus:ring-red-500 focus:border-red-500", data: { reopen_reason_input: true } %>
+                    </div>
+                  <% end %>
+
+                  <div>
+                    <%= f.submit "Salvar", class: "btn-brand px-6 py-2 text-sm" %>
+                  </div>
+                <% end %>
+              <% else %>
+                <p class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                  Nenhuma transição de status disponível para este chamado neste momento.
+                </p>
+              <% end %>
             <% end %>
           </div>
         <% end %>
@@ -258,6 +297,40 @@
 
       statusSelect.addEventListener("change", toggleStatusSpecificFields);
       toggleStatusSpecificFields();
+    }
+
+    const concludeForm = document.querySelector('[data-conclude-form="true"]');
+    if (concludeForm) {
+      const concludeToggle = concludeForm.querySelector('[data-conclude-toggle]');
+      const concludeBox = concludeForm.querySelector('[data-conclude-box]');
+      const concludeCancel = concludeForm.querySelector('[data-conclude-cancel]');
+      const closingNoteInput = concludeForm.querySelector('[data-closing-note-input="true"]');
+
+      const openConcludeBox = function() {
+        if (!concludeBox) return;
+
+        concludeBox.classList.remove("hidden");
+        if (closingNoteInput) {
+          closingNoteInput.focus();
+        }
+      };
+
+      const closeConcludeBox = function() {
+        if (!concludeBox) return;
+
+        concludeBox.classList.add("hidden");
+        if (closingNoteInput) {
+          closingNoteInput.value = "";
+        }
+      };
+
+      if (concludeToggle) {
+        concludeToggle.addEventListener("click", openConcludeBox);
+      }
+
+      if (concludeCancel) {
+        concludeCancel.addEventListener("click", closeConcludeBox);
+      }
     }
   });
 </script>
