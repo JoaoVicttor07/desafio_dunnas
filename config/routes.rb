@@ -8,7 +8,7 @@ Rails.application.routes.draw do
   resources :notifications, only: [:index, :update] do
     patch :mark_all_as_read, on: :collection
   end
-  devise_for :users, skip: [:registrations, :passwords]
+  devise_for :users, skip: [:registrations, :passwords], controllers: { sessions: "users/sessions" }
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -22,6 +22,7 @@ Rails.application.routes.draw do
   namespace :admin do
     resources :users
     resources :user_units, only: [:index, :create, :destroy]
+    resources :audit_logs, only: [:index, :show]
     get "units", to: "units#index"
   end
 
@@ -32,7 +33,7 @@ Rails.application.routes.draw do
     end
 
     unauthenticated do
-      root to: "devise/sessions#new", as: :unauthenticated_root
+      root to: "users/sessions#new", as: :unauthenticated_root
     end
   end
 end
