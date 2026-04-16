@@ -136,6 +136,18 @@ class TicketsController < ApplicationController
     
     respond_to do |format|
       if @ticket.save
+        audit_action(
+          action: "ticket.created",
+          auditable: @ticket,
+          context_data: {
+            ticket_type_id: @ticket.ticket_type_id,
+            ticket_status_id: @ticket.ticket_status_id,
+            unit_id: @ticket.unit_id,
+            attachments_count: @ticket.attachments.count
+          },
+          change_set: audit_change_set_for(@ticket)
+        )
+
         format.html { redirect_to @ticket, notice: "Chamado aberto com sucesso!" }
         format.json { render :show, status: :created, location: @ticket }
       else
@@ -173,6 +185,22 @@ class TicketsController < ApplicationController
               body: "Status alterado de \"#{old_status_name}\" para \"#{new_status_name}\"."
             )
           end
+
+          audit_action(
+            action: "ticket.status_changed",
+            auditable: @ticket,
+            context_data: {
+              from_status: old_status_name,
+              to_status: new_status_name
+            },
+            change_set: audit_change_set_for(@ticket)
+          )
+        else
+          audit_action(
+            action: "ticket.updated",
+            auditable: @ticket,
+            change_set: audit_change_set_for(@ticket)
+          )
         end
 
         format.html { redirect_to @ticket, notice: "Chamado atualizado com sucesso.", status: :see_other }
@@ -186,7 +214,15 @@ class TicketsController < ApplicationController
 
   # DELETE /tickets/1 or /tickets/1.json
   def destroy
+    removed_ticket_snapshot = audit_snapshot_for(@ticket, exclude: %w[created_at updated_at])
+
     @ticket.destroy!
+
+    audit_action(
+      action: "ticket.deleted",
+      auditable: @ticket,
+      context_data: removed_ticket_snapshot
+    )
 
     respond_to do |format|
       format.html { redirect_to tickets_path, notice: "Chamado excluído com sucesso.", status: :see_other }
