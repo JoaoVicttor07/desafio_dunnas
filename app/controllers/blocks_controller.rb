@@ -51,6 +51,11 @@ class BlocksController < ApplicationController
 
   # DELETE /blocks/1
   def destroy
+    if block_has_links?(@block)
+      redirect_to blocks_path, alert: "Bloco possui vínculos, não é possível excluir.", status: :see_other
+      return
+    end
+
     removed_block_snapshot = audit_snapshot_for(@block, exclude: %w[created_at updated_at])
 
     @block.destroy!
@@ -62,6 +67,8 @@ class BlocksController < ApplicationController
     )
 
     redirect_to blocks_path, notice: "Bloco removido com sucesso.", status: :see_other
+  rescue ActiveRecord::InvalidForeignKey
+    redirect_to blocks_path, alert: "Bloco possui vínculos, não é possível excluir.", status: :see_other
   end
 
   private
@@ -72,5 +79,11 @@ class BlocksController < ApplicationController
 
   def block_params
     params.require(:block).permit(:identification, :floors_count, :apartments_per_floor)
+  end
+
+  def block_has_links?(block)
+    unit_ids = block.units.select(:id)
+
+    Ticket.where(unit_id: unit_ids).exists? || UserUnit.where(unit_id: unit_ids).exists?
   end
 end
