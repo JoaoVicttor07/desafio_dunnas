@@ -14,8 +14,21 @@ RSpec.describe "Admin::AuditLogs", type: :request do
       expect(response).to have_http_status(:ok)
       table_body = response.body[/<tbody[^>]*>(.*?)<\/tbody>/m, 1]
 
-      expect(table_body).to include("ticket.created")
-      expect(table_body).not_to include("ticket.updated")
+      expect(table_body).to include("Chamado criado")
+      expect(table_body).not_to include("Chamado atualizado")
+    end
+
+    it "shows an alert when end date is before start date" do
+      admin = create(:user, :administrator)
+      create(:audit_log, actor: admin, action: "ticket.created")
+
+      sign_in admin
+
+      get admin_audit_logs_path, params: { from: "2026-04-15", to: "2026-04-10" }
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("Não é possível filtrar uma data final antes da data inicial.")
+      expect(response.body).to include("Chamado criado")
     end
 
     it "denies non-admin users" do
@@ -37,7 +50,7 @@ RSpec.describe "Admin::AuditLogs", type: :request do
       get admin_audit_log_path(log)
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include("comment.created")
+      expect(response.body).to include("Comentario criado")
     end
   end
 end
