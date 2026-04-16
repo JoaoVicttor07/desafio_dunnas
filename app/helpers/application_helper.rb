@@ -28,7 +28,8 @@ module ApplicationHelper
 						{ label: "Vinculos morador-unidade", path: admin_user_units_path, icon: :link, controllers: %w[admin/user_units admin/units] }
 					]
 				},
-				{ label: "Usuarios", path: admin_users_path, icon: :users, controllers: %w[admin/users] }
+				{ label: "Usuarios", path: admin_users_path, icon: :users, controllers: %w[admin/users] },
+				{ label: "Auditoria", path: admin_audit_logs_path, icon: :shield, controllers: %w[admin/audit_logs] }
 			]
 		end
 
@@ -129,6 +130,8 @@ module ApplicationHelper
 						 "M9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
 					 when :link
 						 "M10 14a5 5 0 007.07 0l1.41-1.41a5 5 0 00-7.07-7.07L10 6m4 4a5 5 0 00-7.07 0L5.5 11.41a5 5 0 007.07 7.07L14 18"
+					 when :shield
+						 "M12 3l7 3v6c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-3zm0 5a3 3 0 100 6 3 3 0 000-6z"
 					 else
 						 "M12 5v14M5 12h14"
 					 end

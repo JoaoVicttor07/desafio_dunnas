@@ -1,0 +1,49 @@
+<% provide(:title, "Detalhe da Auditoria | Condomínio Dunnas") %>
+<% provide(:page_heading, "Detalhe da Auditoria") %>
+
+<div class="w-full space-y-5">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-extrabold tracking-tight text-slate-900">Evento de Auditoria</h1>
+      <p class="mt-1 text-sm text-slate-500"><%= @audit_log.action %> em <%= l(@audit_log.created_at, format: "%d/%m/%Y %H:%M:%S") %></p>
+    </div>
+    <%= link_to "← Voltar para auditoria", admin_audit_logs_path, class: "text-sm font-semibold text-slate-600 hover:text-slate-900" %>
+  </div>
+
+  <div class="panel-surface rounded-2xl p-5">
+    <dl class="grid gap-4 text-sm text-slate-700 md:grid-cols-2">
+      <div>
+        <dt class="font-bold text-slate-900">Ação</dt>
+        <dd><%= @audit_log.action %></dd>
+      </div>
+      <div>
+        <dt class="font-bold text-slate-900">Usuário</dt>
+        <dd><%= @audit_log.actor&.name || "Sistema" %> <%= @audit_log.actor&.email.present? ? "(#{@audit_log.actor.email})" : "" %></dd>
+      </div>
+      <div>
+        <dt class="font-bold text-slate-900">Recurso</dt>
+        <dd><%= [@audit_log.auditable_type, @audit_log.auditable_id].compact.join("#") %></dd>
+      </div>
+      <div>
+        <dt class="font-bold text-slate-900">IP / Request</dt>
+        <dd><%= @audit_log.ip_address.presence || "-" %> / <%= @audit_log.request_id.presence || "-" %></dd>
+      </div>
+      <div class="md:col-span-2">
+        <dt class="font-bold text-slate-900">User Agent</dt>
+        <dd class="break-all"><%= @audit_log.user_agent.presence || "-" %></dd>
+      </div>
+    </dl>
+  </div>
+
+  <div class="grid gap-5 md:grid-cols-2">
+    <div class="panel-surface rounded-2xl p-5">
+      <h2 class="mb-2 text-sm font-bold uppercase tracking-wide text-violet-700">Contexto</h2>
+      <pre class="overflow-x-auto rounded-lg bg-slate-900 p-3 text-xs text-slate-100"><%= JSON.pretty_generate(@audit_log.context_data || {}) %></pre>
+    </div>
+
+    <div class="panel-surface rounded-2xl p-5">
+      <h2 class="mb-2 text-sm font-bold uppercase tracking-wide text-violet-700">Mudanças</h2>
+      <pre class="overflow-x-auto rounded-lg bg-slate-900 p-3 text-xs text-slate-100"><%= JSON.pretty_generate(@audit_log.change_set || {}) %></pre>
+    </div>
+  </div>
+</div>

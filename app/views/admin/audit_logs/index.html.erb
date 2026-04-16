@@ -1,0 +1,134 @@
+<% provide(:title, "Auditoria | Condomínio Dunnas") %>
+<% provide(:page_heading, "Auditoria") %>
+<% filter_keys = %i[q audit_action actor_id auditable_type from to per_page] %>
+<% filters_active = filter_keys.any? { |k| @filters[k].present? } %>
+
+<div class="w-full">
+  <div class="mb-6">
+    <h1 class="font-display text-4xl font-extrabold tracking-tight text-slate-900">Auditoria de Ações</h1>
+    <p class="mt-1 text-sm text-slate-500">Consulte alterações críticas do sistema com filtros por ação, usuário, recurso e período.</p>
+  </div>
+
+  <div class="panel-surface mb-6 overflow-hidden rounded-2xl">
+    <%= form_with url: admin_audit_logs_path, method: :get, local: true, class: "border-b border-violet-100/70 p-4" do |f| %>
+      <details class="group" <%= "open" if filters_active %>>
+        <summary class="list-none cursor-pointer select-none">
+          <div class="inline-flex items-center gap-2 rounded-lg border border-violet-200 bg-violet-50 px-3 py-2 font-bold text-violet-900">
+            Filtros
+          </div>
+        </summary>
+
+        <div class="mt-4 grid grid-cols-1 items-end gap-4 md:grid-cols-6">
+          <div class="md:col-span-2">
+            <%= f.label :q, "Busca", class: "mb-1 block text-xs font-bold uppercase tracking-wide text-violet-700" %>
+            <%= f.text_field :q, value: @filters[:q], placeholder: "Ação, usuário, recurso ou contexto", class: "w-full rounded-lg border border-violet-200 bg-white px-3 py-2 text-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100" %>
+          </div>
+
+          <div>
+            <%= f.label :audit_action, "Ação", class: "mb-1 block text-xs font-bold uppercase tracking-wide text-violet-700" %>
+            <%= f.select :audit_action,
+              options_for_select(@actions, @filters[:audit_action]),
+              { include_blank: "Todas" },
+              class: "w-full rounded-lg border border-violet-200 bg-white px-3 py-2 text-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100" %>
+          </div>
+
+          <div>
+            <%= f.label :actor_id, "Usuário", class: "mb-1 block text-xs font-bold uppercase tracking-wide text-violet-700" %>
+            <%= f.select :actor_id,
+              options_from_collection_for_select(@actors, :id, :name, @filters[:actor_id]),
+              { include_blank: "Todos" },
+              class: "w-full rounded-lg border border-violet-200 bg-white px-3 py-2 text-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100" %>
+          </div>
+
+          <div>
+            <%= f.label :auditable_type, "Recurso", class: "mb-1 block text-xs font-bold uppercase tracking-wide text-violet-700" %>
+            <%= f.select :auditable_type,
+              options_for_select(@auditable_types, @filters[:auditable_type]),
+              { include_blank: "Todos" },
+              class: "w-full rounded-lg border border-violet-200 bg-white px-3 py-2 text-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100" %>
+          </div>
+
+          <div>
+            <%= f.label :per_page, "Por página", class: "mb-1 block text-xs font-bold uppercase tracking-wide text-violet-700" %>
+            <%= f.select :per_page,
+              options_for_select([20, 50, 100], @per_page),
+              {},
+              class: "w-full rounded-lg border border-violet-200 bg-white px-3 py-2 text-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100" %>
+          </div>
+
+          <div>
+            <%= f.label :from, "De", class: "mb-1 block text-xs font-bold uppercase tracking-wide text-violet-700" %>
+            <%= f.date_field :from, value: @filters[:from], class: "w-full rounded-lg border border-violet-200 bg-white px-3 py-2 text-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100" %>
+          </div>
+
+          <div>
+            <%= f.label :to, "Até", class: "mb-1 block text-xs font-bold uppercase tracking-wide text-violet-700" %>
+            <%= f.date_field :to, value: @filters[:to], class: "w-full rounded-lg border border-violet-200 bg-white px-3 py-2 text-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100" %>
+          </div>
+
+          <div class="md:col-span-6 flex flex-wrap items-center gap-2">
+            <%= f.submit "Filtrar", class: "btn-brand px-4 py-2 text-sm" %>
+            <%= link_to "Limpar", admin_audit_logs_path, class: "btn-brand-soft px-4 py-2 text-sm" %>
+          </div>
+        </div>
+      </details>
+    <% end %>
+  </div>
+
+  <div class="mb-3 flex items-center justify-between text-sm text-slate-500">
+    <span>Total de registros: <strong class="text-slate-700"><%= @total_logs %></strong></span>
+    <span>Página <strong class="text-slate-700"><%= @page %></strong> de <strong class="text-slate-700"><%= @total_pages %></strong></span>
+  </div>
+
+  <div class="panel-surface overflow-hidden rounded-2xl">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-violet-100/80">
+        <thead class="bg-violet-50/60">
+          <tr>
+            <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-violet-700">Data/Hora</th>
+            <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-violet-700">Ação</th>
+            <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-violet-700">Usuário</th>
+            <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-violet-700">Recurso</th>
+            <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-violet-700">IP</th>
+            <th class="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-violet-700">Detalhes</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-violet-100/80 bg-white/95">
+          <% @audit_logs.each do |log| %>
+            <tr class="transition-colors hover:bg-violet-50/60">
+              <td class="whitespace-nowrap px-4 py-3 text-sm text-slate-700"><%= l(log.created_at, format: "%d/%m/%Y %H:%M:%S") %></td>
+              <td class="whitespace-nowrap px-4 py-3 text-sm font-semibold text-slate-900"><%= log.action %></td>
+              <td class="whitespace-nowrap px-4 py-3 text-sm text-slate-600"><%= log.actor&.name || "Sistema" %></td>
+              <td class="whitespace-nowrap px-4 py-3 text-sm text-slate-600"><%= [log.auditable_type, log.auditable_id].compact.join("#") %></td>
+              <td class="whitespace-nowrap px-4 py-3 text-sm text-slate-600"><%= log.ip_address.presence || "-" %></td>
+              <td class="whitespace-nowrap px-4 py-3 text-right text-sm">
+                <%= link_to "Ver", admin_audit_log_path(log), class: "font-semibold text-violet-700 hover:text-violet-900" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if @audit_logs.empty? %>
+      <div class="py-12 text-center">
+        <p class="text-sm font-medium text-slate-500">Nenhum registro encontrado para os filtros selecionados.</p>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @total_pages > 1 %>
+    <div class="mt-5 flex flex-wrap items-center justify-center gap-2">
+      <% previous_page = @page - 1 %>
+      <% next_page = @page + 1 %>
+
+      <%= link_to "Anterior",
+        admin_audit_logs_path(@filters.to_h.merge(page: previous_page)),
+        class: "rounded-lg border px-3 py-1.5 text-sm font-semibold #{previous_page < 1 ? 'pointer-events-none border-slate-200 text-slate-300' : 'border-slate-300 text-slate-700 hover:bg-slate-50'}" %>
+
+      <%= link_to "Próxima",
+        admin_audit_logs_path(@filters.to_h.merge(page: next_page)),
+        class: "rounded-lg border px-3 py-1.5 text-sm font-semibold #{next_page > @total_pages ? 'pointer-events-none border-slate-200 text-slate-300' : 'border-slate-300 text-slate-700 hover:bg-slate-50'}" %>
+    </div>
+  <% end %>
+</div>
