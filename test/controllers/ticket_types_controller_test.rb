@@ -3,6 +3,7 @@ require "test_helper"
 class TicketTypesControllerTest < ActionDispatch::IntegrationTest
   setup do
     @ticket_type = ticket_types(:one)
+    sign_in users(:one)
   end
 
   test "should get index" do
@@ -17,15 +18,10 @@ class TicketTypesControllerTest < ActionDispatch::IntegrationTest
 
   test "should create ticket_type" do
     assert_difference("TicketType.count") do
-      post ticket_types_url, params: { ticket_type: { sla_hours: @ticket_type.sla_hours, title: @ticket_type.title } }
+      post ticket_types_url, params: { ticket_type: { sla_hours: 2, title: "Pintura" } }
     end
 
-    assert_redirected_to ticket_type_url(TicketType.last)
-  end
-
-  test "should show ticket_type" do
-    get ticket_type_url(@ticket_type)
-    assert_response :success
+    assert_redirected_to ticket_types_url
   end
 
   test "should get edit" do
@@ -34,13 +30,15 @@ class TicketTypesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update ticket_type" do
-    patch ticket_type_url(@ticket_type), params: { ticket_type: { sla_hours: @ticket_type.sla_hours, title: @ticket_type.title } }
-    assert_redirected_to ticket_type_url(@ticket_type)
+    patch ticket_type_url(@ticket_type), params: { ticket_type: { sla_hours: 3, title: "Hidraulica atualizada" } }
+    assert_redirected_to ticket_types_url
   end
 
   test "should destroy ticket_type" do
+    removable_type = TicketType.create!(title: "Temp type", sla_hours: 1)
+
     assert_difference("TicketType.count", -1) do
-      delete ticket_type_url(@ticket_type)
+      delete ticket_type_url(removable_type)
     end
 
     assert_redirected_to ticket_types_url

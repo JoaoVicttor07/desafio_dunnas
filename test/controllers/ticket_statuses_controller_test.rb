@@ -3,6 +3,7 @@ require "test_helper"
 class TicketStatusesControllerTest < ActionDispatch::IntegrationTest
   setup do
     @ticket_status = ticket_statuses(:one)
+    sign_in users(:one)
   end
 
   test "should get index" do
@@ -17,15 +18,10 @@ class TicketStatusesControllerTest < ActionDispatch::IntegrationTest
 
   test "should create ticket_status" do
     assert_difference("TicketStatus.count") do
-      post ticket_statuses_url, params: { ticket_status: { is_default: @ticket_status.is_default, name: @ticket_status.name } }
+      post ticket_statuses_url, params: { ticket_status: { is_default: false, is_final: false, name: "Aguardando vistoria" } }
     end
 
-    assert_redirected_to ticket_status_url(TicketStatus.last)
-  end
-
-  test "should show ticket_status" do
-    get ticket_status_url(@ticket_status)
-    assert_response :success
+    assert_redirected_to ticket_statuses_url
   end
 
   test "should get edit" do
@@ -34,13 +30,15 @@ class TicketStatusesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update ticket_status" do
-    patch ticket_status_url(@ticket_status), params: { ticket_status: { is_default: @ticket_status.is_default, name: @ticket_status.name } }
-    assert_redirected_to ticket_status_url(@ticket_status)
+    patch ticket_status_url(@ticket_status), params: { ticket_status: { is_default: true, is_final: false, name: "Aberto atualizado" } }
+    assert_redirected_to ticket_statuses_url
   end
 
   test "should destroy ticket_status" do
+    removable_status = TicketStatus.create!(name: "Temp status", is_default: false, is_final: false)
+
     assert_difference("TicketStatus.count", -1) do
-      delete ticket_status_url(@ticket_status)
+      delete ticket_status_url(removable_status)
     end
 
     assert_redirected_to ticket_statuses_url
