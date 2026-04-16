@@ -39,7 +39,7 @@ class TicketNotificationService
     ids.concat(ticket.unit.users.where(role: :resident).pluck(:id))
     ids << ticket.user_id if ticket.user_id.present?
 
-    ids.uniq - [actor&.id].compact
+    ids.uniq - [ actor&.id ].compact
   end
 
   def create_notifications(kind:, title:, body:)

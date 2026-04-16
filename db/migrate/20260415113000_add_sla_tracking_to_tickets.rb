@@ -7,7 +7,7 @@ class AddSlaTrackingToTickets < ActiveRecord::Migration[7.2]
 
     add_index :tickets, :sla_due_at
     add_index :tickets, :sla_breached_at
-    add_index :tickets, [:ticket_status_id, :sla_due_at]
+    add_index :tickets, [ :ticket_status_id, :sla_due_at ]
 
     execute <<~SQL.squish
       UPDATE tickets
@@ -33,7 +33,7 @@ class AddSlaTrackingToTickets < ActiveRecord::Migration[7.2]
   end
 
   def down
-    remove_index :tickets, [:ticket_status_id, :sla_due_at]
+    remove_index :tickets, [ :ticket_status_id, :sla_due_at ]
     remove_index :tickets, :sla_breached_at
     remove_index :tickets, :sla_due_at
 

@@ -14,8 +14,8 @@ class Ability
     if user.collaborator?
       can :read, TicketType
       can :read, TicketStatus
-      can [:read, :update], Ticket, ticket_type_id: user.assigned_ticket_type_ids
-      can [:read, :create], Comment, ticket: { ticket_type_id: user.assigned_ticket_type_ids }
+      can [ :read, :update ], Ticket, ticket_type_id: user.assigned_ticket_type_ids
+      can [ :read, :create ], Comment, ticket: { ticket_type_id: user.assigned_ticket_type_ids }
       return
     end
 
@@ -24,7 +24,6 @@ class Ability
     can :read, TicketType
     can :read, Ticket, unit_id: user.unit_ids
     can :create, Ticket, user_id: user.id
-    can [:read, :create], Comment, ticket: { unit_id: user.unit_ids }
-
+    can [ :read, :create ], Comment, ticket: { unit_id: user.unit_ids }
   end
 end

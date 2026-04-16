@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :audit_log do
-    association :actor, factory: [:user, :administrator]
+    association :actor, factory: [ :user, :administrator ]
     action { "ticket.created" }
     auditable_type { "Ticket" }
     auditable_id { 1 }

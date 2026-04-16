@@ -1,12 +1,12 @@
 system_statuses = [
   { name: "Aberto", is_default: true, is_final: false, aliases: [] },
   { name: "Em andamento", is_default: false, is_final: false, aliases: [] },
-  { name: "Concluido", is_default: false, is_final: true, aliases: ["Concluído"] },
+  { name: "Concluido", is_default: false, is_final: true, aliases: [ "Concluído" ] },
   { name: "Reaberto", is_default: false, is_final: false, aliases: [] }
 ]
 
 system_statuses.each do |attrs|
-  names = ([attrs[:name]] + attrs[:aliases]).map(&:downcase)
+  names = ([ attrs[:name] ] + attrs[:aliases]).map(&:downcase)
 
   status = TicketStatus.where("LOWER(name) IN (?)", names).first || TicketStatus.new
   status.assign_attributes(

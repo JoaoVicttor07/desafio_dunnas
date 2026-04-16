@@ -1,6 +1,6 @@
 class TicketsController < ApplicationController
   INDEX_PER_PAGE = 5
-  INDEX_PER_PAGE_OPTIONS = [5, 10, 20].freeze
+  INDEX_PER_PAGE_OPTIONS = [ 5, 10, 20 ].freeze
   INDEX_SORT_OPTIONS = %w[id created_at updated_at sla_due_at ticket_type ticket_status apartment].freeze
   INDEX_SORT_COLUMNS = {
     "id" => "tickets.id",
@@ -16,8 +16,8 @@ class TicketsController < ApplicationController
   # GET /tickets or /tickets.json
   def index
     @filters = params.permit(
-      :ticket_status_id, 
-      :ticket_type_id, 
+      :ticket_status_id,
+      :ticket_type_id,
       :unit_id,
       :block_id,
       :sla_state,
@@ -60,7 +60,7 @@ class TicketsController < ApplicationController
 
     if current_user.resident? && @filters[:period].present?
       days = @filters[:period].to_i
-      if [7, 30, 90].include?(days)
+      if [ 7, 30, 90 ].include?(days)
         @tickets = @tickets.where("tickets.created_at >= ?", days.days.ago.beginning_of_day)
       end
     end
@@ -103,7 +103,7 @@ class TicketsController < ApplicationController
     @tickets = apply_sort(@tickets, @sort_by, @sort_dir)
 
     @total_tickets = @tickets.count
-    @total_pages = [(@total_tickets.to_f / @per_page).ceil, 1].max
+    @total_pages = [ (@total_tickets.to_f / @per_page).ceil, 1 ].max
 
     @page = params[:page].to_i
     @page = 1 if @page < 1
@@ -133,7 +133,7 @@ class TicketsController < ApplicationController
       redirect_to tickets_path, alert: "Você não possui unidade vinculada. Contate o administrador."
       return
     end
-    
+
     respond_to do |format|
       if @ticket.save
         audit_action(
@@ -297,11 +297,11 @@ class TicketsController < ApplicationController
   def ticket_params
     permitted =
       if action_name == "create"
-        [:unit_id, :ticket_type_id, :description]
+        [ :unit_id, :ticket_type_id, :description ]
       elsif current_user.administrator?
-        [:description, :ticket_status_id, :reopen_reason, :closing_note]
+        [ :description, :ticket_status_id, :reopen_reason, :closing_note ]
       elsif current_user.collaborator?
-        [:ticket_status_id, :closing_note]
+        [ :ticket_status_id, :closing_note ]
       else
         []
       end

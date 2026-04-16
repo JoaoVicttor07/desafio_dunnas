@@ -240,13 +240,13 @@ class Ticket < ApplicationRecord
   def allowed_next_status_keys_for(status, user = nil)
     case normalized_status_name(status)
     when "aberto"
-      user&.administrator? ? ["em andamento", "concluido"] : ["em andamento"]
+      user&.administrator? ? [ "em andamento", "concluido" ] : [ "em andamento" ]
     when "em andamento"
-      ["concluido"]
+      [ "concluido" ]
     when "concluido"
-      user&.administrator? ? ["reaberto"] : []
+      user&.administrator? ? [ "reaberto" ] : []
     when "reaberto"
-      user&.administrator? ? ["em andamento", "concluido"] : ["em andamento"]
+      user&.administrator? ? [ "em andamento", "concluido" ] : [ "em andamento" ]
     else
       []
     end

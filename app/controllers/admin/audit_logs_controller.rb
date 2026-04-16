@@ -1,6 +1,6 @@
 module Admin
   class AuditLogsController < BaseController
-    PER_PAGE_OPTIONS = [10, 20, 30].freeze
+    PER_PAGE_OPTIONS = [ 10, 20, 30 ].freeze
 
     load_and_authorize_resource class: "AuditLog"
 
@@ -27,7 +27,7 @@ module Admin
       end
 
       @total_logs = @audit_logs.count
-      @total_pages = [(@total_logs.to_f / @per_page).ceil, 1].max
+      @total_pages = [ (@total_logs.to_f / @per_page).ceil, 1 ].max
 
       @page = @filters[:page].to_i
       @page = 1 if @page < 1

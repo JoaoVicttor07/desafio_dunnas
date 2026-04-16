@@ -60,7 +60,7 @@ RSpec.describe "Comments", type: :request do
 
       sign_in resident
 
-      image_file = Tempfile.new(["comment-photo", ".png"])
+      image_file = Tempfile.new([ "comment-photo", ".png" ])
       image_file.binmode
       image_file.write(
         Base64.decode64("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8Xw8AAuMB9oNbyzQAAAAASUVORK5CYII=")
@@ -73,7 +73,7 @@ RSpec.describe "Comments", type: :request do
         post ticket_comments_path(ticket), params: {
           comment: {
             body: "Comentario com foto",
-            photos: [uploaded_file]
+            photos: [ uploaded_file ]
           }
         }
       end.to change(Comment, :count).by(1).and change(AuditLog, :count).by(1)

@@ -22,7 +22,7 @@ class ApplicationController < ActionController::Base
     return tickets_path if resource.respond_to?(:resident?) && resource.resident?
     super
   end
-  
+
   protected
 
   def configure_permitted_parameters
