@@ -8,6 +8,16 @@ class CommentsController < ApplicationController
         @comment.user = current_user
 
         if @comment.save
+                        audit_action(
+                            action: "comment.created",
+                            auditable: @comment,
+                            context_data: {
+                                ticket_id: @ticket.id,
+                                photos_count: @comment.photos.count
+                            },
+                            change_set: audit_change_set_for(@comment)
+                        )
+
             ::TicketNotificationService.new(ticket: @ticket, actor: current_user).notify_comment_created
             redirect_to @ticket, notice: "Comentário adicionado com sucesso."
         else

@@ -76,9 +76,10 @@ RSpec.describe "Comments", type: :request do
             photos: [uploaded_file]
           }
         }
-      end.to change(Comment, :count).by(1)
+      end.to change(Comment, :count).by(1).and change(AuditLog, :count).by(1)
 
       expect(Comment.last.photos).to be_attached
+      expect(AuditLog.last.action).to eq("comment.created")
       expect(response).to redirect_to(ticket_path(ticket))
     ensure
       image_file.close!
