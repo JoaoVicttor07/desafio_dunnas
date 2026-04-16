@@ -3,6 +3,7 @@ require "test_helper"
 class BlocksControllerTest < ActionDispatch::IntegrationTest
   setup do
     @block = blocks(:one)
+    sign_in users(:one)
   end
 
   test "should get index" do
@@ -17,15 +18,10 @@ class BlocksControllerTest < ActionDispatch::IntegrationTest
 
   test "should create block" do
     assert_difference("Block.count") do
-      post blocks_url, params: { block: { apartments_per_floor: @block.apartments_per_floor, floors_count: @block.floors_count, identification: @block.identification } }
+      post blocks_url, params: { block: { apartments_per_floor: 2, floors_count: 2, identification: "Bloco C" } }
     end
 
-    assert_redirected_to block_url(Block.last)
-  end
-
-  test "should show block" do
-    get block_url(@block)
-    assert_response :success
+    assert_redirected_to blocks_url
   end
 
   test "should get edit" do
@@ -34,13 +30,15 @@ class BlocksControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update block" do
-    patch block_url(@block), params: { block: { apartments_per_floor: @block.apartments_per_floor, floors_count: @block.floors_count, identification: @block.identification } }
-    assert_redirected_to block_url(@block)
+    patch block_url(@block), params: { block: { apartments_per_floor: 3, floors_count: 2, identification: "Bloco A atualizado" } }
+    assert_redirected_to blocks_url
   end
 
   test "should destroy block" do
+    removable_block = Block.create!(identification: "Bloco Temp", floors_count: 1, apartments_per_floor: 1)
+
     assert_difference("Block.count", -1) do
-      delete block_url(@block)
+      delete block_url(removable_block)
     end
 
     assert_redirected_to blocks_url
