@@ -1,6 +1,6 @@
 <% provide(:title, "Auditoria | Condomínio Dunnas") %>
 <% provide(:page_heading, "Auditoria") %>
-<% filter_keys = %i[q audit_action actor_id auditable_type from to] %>
+<% filter_keys = %i[audit_action actor_id auditable_type from to] %>
 <% filters_active = filter_keys.any? { |k| @filters[k].present? } %>
 
 <div class="w-full">
@@ -21,11 +21,6 @@
         </summary>
 
         <div class="mt-4 grid grid-cols-1 items-end gap-4 md:grid-cols-6">
-          <div class="md:col-span-2">
-            <%= f.label :q, "Busca", class: "mb-1 block text-xs font-bold uppercase tracking-wide text-violet-700" %>
-            <%= f.text_field :q, value: @filters[:q], placeholder: "Ação, usuário, recurso ou contexto", class: "w-full rounded-lg border border-violet-200 bg-white px-3 py-2 text-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100" %>
-          </div>
-
           <div>
             <%= f.label :audit_action, "Ação", class: "mb-1 block text-xs font-bold uppercase tracking-wide text-violet-700" %>
             <%= f.select :audit_action,

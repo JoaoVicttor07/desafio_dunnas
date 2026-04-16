@@ -5,9 +5,9 @@
 <% sla_visible = !resident_view %>
 <% show_apartment_column = !resident_view || current_user.units.many? %>
 <% filter_keys = if resident_view
-  %i[period q ticket_status_id unit_id]
+  %i[period ticket_status_id unit_id]
 else
-  %i[block_id created_from created_to q ticket_status_id ticket_type_id unit_id sla_state]
+  %i[block_id created_from created_to ticket_status_id ticket_type_id unit_id sla_state]
 end %>
 <% filters_active = filter_keys.any? { |k| params[k].present? } %>
 
@@ -81,11 +81,6 @@ end %>
             <div>
               <%= label_tag :created_to, "Até", class: "mb-1 block text-sm font-bold text-slate-800" %>
               <%= date_field_tag :created_to, params[:created_to], class: "w-full rounded-lg border border-violet-200 bg-white p-2 text-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100" %>
-            </div>
-
-            <div>
-              <%= label_tag :q, "Buscar", class: "mb-1 block text-sm font-bold text-slate-800" %>
-              <%= text_field_tag :q, params[:q], placeholder: "Descrição, tipo, bloco ou unidade...", class: "w-full rounded-lg border border-violet-200 bg-white p-2 text-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100" %>
             </div>
 
             <div>
