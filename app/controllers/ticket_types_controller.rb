@@ -22,6 +22,12 @@ class TicketTypesController < ApplicationController
     @ticket_type = TicketType.new(ticket_type_params)
 
     if @ticket_type.save
+      audit_action(
+        action: "ticket_type.created",
+        auditable: @ticket_type,
+        change_set: audit_change_set_for(@ticket_type)
+      )
+
       redirect_to ticket_types_path, notice: "Tipo de chamado criado com sucesso."
     else
       render :new, status: :unprocessable_entity
@@ -31,6 +37,12 @@ class TicketTypesController < ApplicationController
   # PATCH/PUT /ticket_types/1 or /ticket_types/1.json
   def update
     if @ticket_type.update(ticket_type_params)
+      audit_action(
+        action: "ticket_type.updated",
+        auditable: @ticket_type,
+        change_set: audit_change_set_for(@ticket_type)
+      )
+
       redirect_to ticket_types_path, notice: "Tipo de chamado atualizado com sucesso.", status: :see_other
     else
       render :edit, status: :unprocessable_entity
@@ -39,7 +51,16 @@ class TicketTypesController < ApplicationController
 
   # DELETE /ticket_types/1 or /ticket_types/1.json
   def destroy
+    removed_type_snapshot = audit_snapshot_for(@ticket_type, exclude: %w[created_at updated_at])
+
     @ticket_type.destroy!
+
+    audit_action(
+      action: "ticket_type.deleted",
+      auditable: @ticket_type,
+      context_data: removed_type_snapshot
+    )
+
     redirect_to ticket_types_path, notice: "Tipo de chamado removido com sucesso.", status: :see_other
   end
 

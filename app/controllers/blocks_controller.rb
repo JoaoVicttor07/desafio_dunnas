@@ -22,6 +22,12 @@ class BlocksController < ApplicationController
     @block = Block.new(block_params)
 
     if @block.save
+      audit_action(
+        action: "block.created",
+        auditable: @block,
+        change_set: audit_change_set_for(@block)
+      )
+
       redirect_to blocks_path, notice: "Bloco criado com sucesso."
     else
       render :new, status: :unprocessable_entity
@@ -31,6 +37,12 @@ class BlocksController < ApplicationController
   # PATCH/PUT /blocks/1
   def update
     if @block.update(block_params)
+      audit_action(
+        action: "block.updated",
+        auditable: @block,
+        change_set: audit_change_set_for(@block)
+      )
+
       redirect_to blocks_path, notice: "Bloco atualizado com sucesso.", status: :see_other
     else
       render :edit, status: :unprocessable_entity
@@ -39,7 +51,16 @@ class BlocksController < ApplicationController
 
   # DELETE /blocks/1
   def destroy
+    removed_block_snapshot = audit_snapshot_for(@block, exclude: %w[created_at updated_at])
+
     @block.destroy!
+
+    audit_action(
+      action: "block.deleted",
+      auditable: @block,
+      context_data: removed_block_snapshot
+    )
+
     redirect_to blocks_path, notice: "Bloco removido com sucesso.", status: :see_other
   end
 

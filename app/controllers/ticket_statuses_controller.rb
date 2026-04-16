@@ -22,6 +22,12 @@ class TicketStatusesController < ApplicationController
     @ticket_status = TicketStatus.new(ticket_status_params)
 
     if @ticket_status.save
+      audit_action(
+        action: "ticket_status.created",
+        auditable: @ticket_status,
+        change_set: audit_change_set_for(@ticket_status)
+      )
+
       redirect_to ticket_statuses_path, notice: "Status criado com sucesso."
     else
       render :new, status: :unprocessable_entity
@@ -31,6 +37,12 @@ class TicketStatusesController < ApplicationController
   # PATCH/PUT /ticket_statuses/1 or /ticket_statuses/1.json
   def update
     if @ticket_status.update(ticket_status_params)
+      audit_action(
+        action: "ticket_status.updated",
+        auditable: @ticket_status,
+        change_set: audit_change_set_for(@ticket_status)
+      )
+
       redirect_to ticket_statuses_path, notice: "Status atualizado com sucesso.", status: :see_other
     else
       render :edit, status: :unprocessable_entity
@@ -39,7 +51,16 @@ class TicketStatusesController < ApplicationController
 
   # DELETE /ticket_statuses/1 or /ticket_statuses/1.json
   def destroy
+    removed_status_snapshot = audit_snapshot_for(@ticket_status, exclude: %w[created_at updated_at])
+
     @ticket_status.destroy!
+
+    audit_action(
+      action: "ticket_status.deleted",
+      auditable: @ticket_status,
+      context_data: removed_status_snapshot
+    )
+
     redirect_to ticket_statuses_path, notice: "Status removido com sucesso.", status: :see_other
   end
 
