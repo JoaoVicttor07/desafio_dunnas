@@ -11,6 +11,12 @@ module Admin
 
     def create
       if @user.save
+        audit_action(
+          action: "admin.user.created",
+          auditable: @user,
+          change_set: audit_change_set_for(@user, exclude: %w[created_at updated_at encrypted_password reset_password_token remember_created_at])
+        )
+
         redirect_to admin_users_path, notice: "Usuário criado com sucesso."
       else
         render :new, status: :unprocessable_entity
@@ -22,6 +28,12 @@ module Admin
 
     def update
       if @user.update(user_params)
+        audit_action(
+          action: "admin.user.updated",
+          auditable: @user,
+          change_set: audit_change_set_for(@user, exclude: %w[created_at updated_at encrypted_password reset_password_token remember_created_at])
+        )
+
         redirect_to admin_users_path, notice: "Usuário atualizado com sucesso."
       else
         render :edit, status: :unprocessable_entity
@@ -39,7 +51,15 @@ module Admin
         return
       end
 
+      removed_user_snapshot = audit_snapshot_for(@user, exclude: %w[created_at updated_at encrypted_password reset_password_token remember_created_at])
+
       @user.destroy!
+
+      audit_action(
+        action: "admin.user.deleted",
+        context_data: removed_user_snapshot
+      )
+
       redirect_to admin_users_path, notice: "Usuário removido com sucesso."
     end
 
