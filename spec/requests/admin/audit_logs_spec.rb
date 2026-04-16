@@ -52,5 +52,41 @@ RSpec.describe "Admin::AuditLogs", type: :request do
       expect(response).to have_http_status(:ok)
       expect(response.body).to include("Comentario criado")
     end
+
+    it "renders simplified fields in pt-BR" do
+      admin = create(:user, :administrator)
+      status = create(:ticket_status, name: "Aberto")
+      unit = create(:unit)
+      log = create(
+        :audit_log,
+        actor: admin,
+        action: "ticket.created",
+        context_data: {
+          ticket_id: 124,
+          user_id: admin.id,
+          description: "Teste de chamado"
+        },
+        change_set: {
+          "user_id" => { "from" => nil, "to" => admin.id },
+          "description" => { "from" => nil, "to" => "Teste de chamado" },
+          "sla_due_at" => { "from" => nil, "to" => "2026-04-19T00:24:25-03:00" },
+          "sla_started_at" => { "from" => nil, "to" => "2026-04-16T00:24:25-03:00" },
+          "ticket_status_id" => { "from" => nil, "to" => status.id },
+          "unit_id" => { "from" => nil, "to" => unit.id }
+        }
+      )
+
+      sign_in admin
+      get admin_audit_log_path(log)
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("Usuario")
+      expect(response.body).to include("Descricao")
+      expect(response.body).to include("Prazo do SLA")
+      expect(response.body).to include("Inicio do SLA")
+      expect(response.body).not_to include("User id")
+      expect(response.body).not_to include("Description")
+      expect(response.body).not_to include("Sla due at")
+    end
   end
 end

@@ -38,6 +38,14 @@ module Admin::AuditLogsHelper
   TECHNICAL_CONTEXT_KEYS = %w[method path controller action_name].freeze
 
   FIELD_LABELS = {
+    "id" => "ID",
+    "user_id" => "Usuario",
+    "description" => "Descricao",
+    "sla_due_at" => "Prazo do SLA",
+    "sla_started_at" => "Inicio do SLA",
+    "resolved_at" => "Resolvido em",
+    "created_at" => "Criado em",
+    "updated_at" => "Atualizado em",
     "ticket_status_id" => "Status do chamado",
     "ticket_type_id" => "Tipo de chamado",
     "unit_id" => "Unidade",
@@ -112,6 +120,9 @@ module Admin::AuditLogsHelper
     reference_value = audit_reference_value(field, value)
     return reference_value if reference_value.present?
 
+    datetime_value = audit_datetime_value(value)
+    return datetime_value if datetime_value.present?
+
     case value
     when TrueClass
       "Sim"
@@ -133,6 +144,9 @@ module Admin::AuditLogsHelper
     record_id = value.to_i
 
     case normalized_field
+    when "user_id"
+      user = User.find_by(id: record_id)
+      user ? "#{user.name} (##{record_id})" : "##{record_id}"
     when "ticket_status_id"
       status = TicketStatus.find_by(id: record_id)
       status ? "#{status.name} (##{record_id})" : "##{record_id}"
@@ -147,5 +161,16 @@ module Admin::AuditLogsHelper
     else
       nil
     end
+  end
+
+  def audit_datetime_value(value)
+    return nil unless value.is_a?(String)
+
+    parsed_time = Time.zone.parse(value)
+    return nil unless parsed_time
+
+    I18n.l(parsed_time, format: "%d/%m/%Y %H:%M:%S")
+  rescue ArgumentError, TypeError
+    nil
   end
 end
