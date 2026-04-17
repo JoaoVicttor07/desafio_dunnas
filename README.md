@@ -49,6 +49,7 @@ Sistema web para gestão de chamados em ambiente condominial, com controle de ac
 - [14. Contribuições](#14-contribuições)
 - [15. Imagens do projeto](#15-imagens-do-projeto)
   - [15.1 Galeria pública](#151-galeria-pública)
+  - [15.2 Evidência de performance em produção](#152-evidência-de-performance-em-produção)
 - [16. Licença](#16-licença)
 
 ---
@@ -382,8 +383,8 @@ Nesta versão da documentação, a modelagem é apresentada por imagens externas
 
 | Imagem | Link |
 |---|---|
-| [![Modelagem de banco - visão geral](https://drive.google.com/thumbnail?id=1q3o7uHuiqbrjObl-tQ1K8QWPtOeQRPvu&sz=w1000)](https://drive.google.com/file/d/1q3o7uHuiqbrjObl-tQ1K8QWPtOeQRPvu1/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/ID_MODELAGEM_1/view?usp=sharing) |
-| [![Modelagem de banco - detalhes/tabelas](https://drive.google.com/thumbnail?id=1G1tiCb52aD5J2PhWIO3esHXqTuwvcuYP&sz=w1000)](https://drive.google.com/file/d/ID_MODELAGEM_2/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/1G1tiCb52aD5J2PhWIO3esHXqTuwvcuYP/view?usp=sharing) |
+| [![Modelagem de banco - visão geral](https://drive.google.com/thumbnail?id=1q3o7uHuiqbrjObl-tQ1K8QWPtOeQRPvu&sz=w1000)](https://drive.google.com/file/d/1q3o7uHuiqbrjObl-tQ1K8QWPtOeQRPvu/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/1q3o7uHuiqbrjObl-tQ1K8QWPtOeQRPvu/view?usp=sharing) |
+| [![Modelagem de banco - detalhes/tabelas](https://drive.google.com/thumbnail?id=1G1tiCb52aD5J2PhWIO3esHXqTuwvcuYP&sz=w1000)](https://drive.google.com/file/d/1G1tiCb52aD5J2PhWIO3esHXqTuwvcuYP/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/1G1tiCb52aD5J2PhWIO3esHXqTuwvcuYP/view?usp=sharing) |
 
 ---
 
@@ -712,15 +713,16 @@ Boas práticas para contribuições:
 
 ## 15. Imagens do projeto
 
-Esta seção apresenta evidências visuais da aplicação para leitura pública do repositório.
-Você pode usar imagens hospedadas no próprio repositório **ou** links externos (ex.: Google Drive com compartilhamento público).
+Esta seção reúne as principais telas funcionais do sistema em ambiente real de uso, com foco em demonstrar os fluxos críticos do produto:
+autenticação, abertura e acompanhamento de chamados, notificações, cadastros administrativos e trilha de auditoria.
+As imagens servem como evidência visual de que as funcionalidades descritas ao longo deste README estão implementadas e navegáveis na interface web.
 
 ### 15.1 Galeria pública
 
 | Imagem | Link |
 |---|---|
 | [![Login](https://drive.google.com/thumbnail?id=1DJ-2ILS-HpK-HbaMkfjTXBAl_z5MMS0I&sz=w1000)](https://drive.google.com/file/d/1DJ-2ILS-HpK-HbaMkfjTXBAl_z5MMS0I/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/1DJ-2ILS-HpK-HbaMkfjTXBAl_z5MMS0I/view?usp=sharing) |
-| [![Listagem de chamados](https://drive.google.com/thumbnail?id=16GVp6dxjntzJHpeh6jHG772E4GT8577n&sz=w1000)](https://drive.google.com/file/d/ID_LISTAGEM/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/16GVp6dxjntzJHpeh6jHG772E4GT8577n/view?usp=sharing) |
+| [![Listagem de chamados](https://drive.google.com/thumbnail?id=16GVp6dxjntzJHpeh6jHG772E4GT8577n&sz=w1000)](https://drive.google.com/file/d/16GVp6dxjntzJHpeh6jHG772E4GT8577n/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/16GVp6dxjntzJHpeh6jHG772E4GT8577n/view?usp=sharing) |
 | [![Detalhe do chamado](https://drive.google.com/thumbnail?id=1mnL6LoAdz1B_vFfUF3os9qlf6ZnlF7My&sz=w1000)](https://drive.google.com/file/d/1mnL6LoAdz1B_vFfUF3os9qlf6ZnlF7My/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/1mnL6LoAdz1B_vFfUF3os9qlf6ZnlF7My/view?usp=sharing) |
 | [![Abertura de chamado](https://drive.google.com/thumbnail?id=1gobCS-zBeaPeCbozDB2EofyZ4T5Cm_l-&sz=w1000)](https://drive.google.com/file/d/1gobCS-zBeaPeCbozDB2EofyZ4T5Cm_l-/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/1gobCS-zBeaPeCbozDB2EofyZ4T5Cm_l-/view?usp=sharing) |
 |  |
@@ -731,6 +733,16 @@ Você pode usar imagens hospedadas no próprio repositório **ou** links externo
 | [![Status de chamado](https://drive.google.com/thumbnail?id=1yTyqQ1NXlr3Cumr30WGoeiRb72eSPZXP&sz=w1000)](https://drive.google.com/file/d/1yTyqQ1NXlr3Cumr30WGoeiRb72eSPZXP/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/1yTyqQ1NXlr3Cumr30WGoeiRb72eSPZXP/view?usp=sharing) |
 | [![Auditoria (lista)](https://drive.google.com/thumbnail?id=1x8Vmxn8d9MYnj4M2u369vgGN_J1OLD0m&sz=w1000)](https://drive.google.com/file/d/1x8Vmxn8d9MYnj4M2u369vgGN_J1OLD0m/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/1x8Vmxn8d9MYnj4M2u369vgGN_J1OLD0m/view?usp=sharing) |
 | [![Auditoria (detalhe)](https://drive.google.com/thumbnail?id=1xIB22iAiiado9ByFmsn00gRhaP90t9JM&sz=w1000)](https://drive.google.com/file/d/1xIB22iAiiado9ByFmsn00gRhaP90t9JM/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/1xIB22iAiiado9ByFmsn00gRhaP90t9JM/view?usp=sharing) |
+
+### 15.2 Evidência de performance em produção
+
+Esta subseção registra um snapshot operacional do ambiente em produção para complementar a validação funcional das telas. O objetivo é evidenciar comportamento de consumo de recursos (CPU, memória, rede e I/O) durante execução real da aplicação publicada.
+
+| Imagem | Link |
+|---|---|
+| [![Performance em produção](https://drive.google.com/thumbnail?id=1aA5d3H0zKcUfoJAESsf2hbrTUnuWla3U&sz=w1000)](https://drive.google.com/file/d/1aA5d3H0zKcUfoJAESsf2hbrTUnuWla3U/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/1aA5d3H0zKcUfoJAESsf2hbrTUnuWla3U/view?usp=sharing) |
+
+> Performance em produção (jv.romeu.dev.br) — coleta em 17/04/2026 08:00 (UTC-3), cenário: uso normal (sem teste de estresse), com CPU próxima de 0%, memória ~130 MB e I/O/rede estáveis.
 
 ---
 
