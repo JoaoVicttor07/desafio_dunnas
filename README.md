@@ -2,8 +2,6 @@
 
 Sistema web para gestão de chamados em ambiente condominial, com controle de acesso por perfil, fluxo operacional com SLA, auditoria e rastreabilidade de ações.
 
----
-
 ## 📚 Sumário
 
 - [1. Visão geral](#1-visão-geral)
@@ -16,7 +14,7 @@ Sistema web para gestão de chamados em ambiente condominial, com controle de ac
   - [2.2 Decisões técnicas e trade-offs](#22-decisões-técnicas-e-trade-offs)
 - [3. Arquitetura e estrutura do projeto](#3-arquitetura-e-estrutura-do-projeto)
 - [4. Controle de acesso e regras de autorização (CanCanCan)](#4-controle-de-acesso-e-regras-de-autorização-cancancan)
-  - [4.1 Snippet do `Ability`](#41-snippet-do-ability)
+  - [4.1 Exemplo de codigo do `Ability`](#41-exemplo-de-codigo-do-ability)
   - [4.2 Regras por perfil](#42-regras-por-perfil)
 - [5. Regras de negócio críticas](#5-regras-de-negócio-críticas)
   - [5.1 Fluxo de status](#51-fluxo-de-status)
@@ -42,6 +40,7 @@ Sistema web para gestão de chamados em ambiente condominial, com controle de ac
   - [10.6 Arquivos Docker e seus papéis](#106-arquivos-docker-e-seus-papéis)
   - [10.7 Migrações e seeds](#107-migrações-e-seeds)
   - [10.8 Credenciais iniciais](#108-credenciais-iniciais)
+  - [10.9 Deploy publicado](#109-deploy-publicado)
 - [11. Armazenamento de anexos](#11-armazenamento-de-anexos)
 - [12. Testes](#12-testes)
   - [12.1 O que os testes cobrem](#121-o-que-os-testes-cobrem)
@@ -93,7 +92,7 @@ O sistema permite anexar imagens em dois pontos do fluxo:
 - **ao abrir chamado** (`Ticket`), via campo `attachments`;
 - **ao comentar chamado** (`Comment`), via campo `photos`.
 
-Snippets de parâmetros permitidos nos controllers:
+Exemplos de código de parâmetros permitidos nos controllers:
 
 ```ruby
 # app/controllers/tickets_controller.rb
@@ -164,7 +163,7 @@ Essa organização reforça o MVC e separa domínio, transporte (HTTP), visualiz
 
 ## 4. Controle de acesso e regras de autorização (CanCanCan)
 
-### 4.1 Snippet do `Ability`
+### 4.1 Exemplo de codigo do `Ability`
 
 Trecho representativo da autorização centralizada:
 
@@ -379,35 +378,12 @@ Resumo: a aplicação de 1FN + 2FN + 3FN neste projeto contribui para um banco m
 
 ## 8. Diagrama relacional (ERD)
 
-> Espaço para inclusão/atualização do diagrama relacional oficial do projeto (imagem ou Mermaid).
+Nesta versão da documentação, a modelagem é apresentada por imagens externas (Google Drive), seguindo o mesmo padrão adotado na seção de galeria.
 
-### Versão Mermaid (atual)
-
-```mermaid
-erDiagram
-    USERS ||--o{ TICKETS : abre
-    USERS ||--o{ COMMENTS : escreve
-    USERS ||--o{ NOTIFICATIONS : recebe
-    USERS ||--o{ NOTIFICATIONS : gera
-    USERS ||--o{ AUDIT_LOGS : atua
-
-    BLOCKS ||--o{ UNITS : possui
-    UNITS ||--o{ TICKETS : recebe
-
-    TICKET_TYPES ||--o{ TICKETS : classifica
-    TICKET_STATUSES ||--o{ TICKETS : define_status
-    TICKETS ||--o{ COMMENTS : possui
-    TICKETS ||--o{ NOTIFICATIONS : referencia
-
-    USERS ||--o{ USER_UNITS : vincula
-    UNITS ||--o{ USER_UNITS : vincula
-
-    USERS ||--o{ USER_TICKET_TYPES : vincula
-    TICKET_TYPES ||--o{ USER_TICKET_TYPES : vincula
-
-    ACTIVE_STORAGE_BLOBS ||--o{ ACTIVE_STORAGE_ATTACHMENTS : arquivo
-    ACTIVE_STORAGE_BLOBS ||--o{ ACTIVE_STORAGE_VARIANT_RECORDS : variacao
-```
+| Imagem | Link |
+|---|---|
+| [![Modelagem de banco - visão geral](https://drive.google.com/thumbnail?id=1q3o7uHuiqbrjObl-tQ1K8QWPtOeQRPvu&sz=w1000)](https://drive.google.com/file/d/1q3o7uHuiqbrjObl-tQ1K8QWPtOeQRPvu1/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/ID_MODELAGEM_1/view?usp=sharing) |
+| [![Modelagem de banco - detalhes/tabelas](https://drive.google.com/thumbnail?id=1G1tiCb52aD5J2PhWIO3esHXqTuwvcuYP&sz=w1000)](https://drive.google.com/file/d/ID_MODELAGEM_2/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/1G1tiCb52aD5J2PhWIO3esHXqTuwvcuYP/view?usp=sharing) |
 
 ---
 
@@ -634,6 +610,10 @@ Fallback (somente se variáveis não forem definidas):
 
 > Recomendação: sempre definir credenciais seguras para ambiente real.
 
+### 10.9 Deploy publicado
+
+- URL de acesso em produção: <https://jv.romeu.dev.br/>
+
 ---
 
 ## 11. Armazenamento de anexos
@@ -733,23 +713,24 @@ Boas práticas para contribuições:
 ## 15. Imagens do projeto
 
 Esta seção apresenta evidências visuais da aplicação para leitura pública do repositório.
+Você pode usar imagens hospedadas no próprio repositório **ou** links externos (ex.: Google Drive com compartilhamento público).
 
 ### 15.1 Galeria pública
 
 | Imagem | Link |
 |---|---|
 | [![Login](https://drive.google.com/thumbnail?id=1DJ-2ILS-HpK-HbaMkfjTXBAl_z5MMS0I&sz=w1000)](https://drive.google.com/file/d/1DJ-2ILS-HpK-HbaMkfjTXBAl_z5MMS0I/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/1DJ-2ILS-HpK-HbaMkfjTXBAl_z5MMS0I/view?usp=sharing) |
-| [![Listagem de chamados](https://drive.google.com/thumbnail?id=ID_LISTAGEM&sz=w1000)](https://drive.google.com/file/d/ID_LISTAGEM/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/ID_LISTAGEM/view?usp=sharing) |
-| [![Detalhe do chamado](https://drive.google.com/thumbnail?id=ID_DETALHE&sz=w1000)](https://drive.google.com/file/d/ID_DETALHE/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/ID_DETALHE/view?usp=sharing) |
-| [![Abertura de chamado](https://drive.google.com/thumbnail?id=ID_ABERTURA&sz=w1000)](https://drive.google.com/file/d/ID_ABERTURA/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/ID_ABERTURA/view?usp=sharing) |
-| [![Comentário com foto](https://drive.google.com/thumbnail?id=ID_COMENTARIO&sz=w1000)](https://drive.google.com/file/d/ID_COMENTARIO/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/ID_COMENTARIO/view?usp=sharing) |
-| [![Notificações](https://drive.google.com/thumbnail?id=ID_NOTIFICACOES&sz=w1000)](https://drive.google.com/file/d/ID_NOTIFICACOES/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/ID_NOTIFICACOES/view?usp=sharing) |
-| [![Administração de blocos](https://drive.google.com/thumbnail?id=ID_BLOCOS&sz=w1000)](https://drive.google.com/file/d/ID_BLOCOS/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/ID_BLOCOS/view?usp=sharing) |
-| [![Vínculos morador-unidade](https://drive.google.com/thumbnail?id=ID_VINCULOS&sz=w1000)](https://drive.google.com/file/d/ID_VINCULOS/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/ID_VINCULOS/view?usp=sharing) |
-| [![Tipos de chamado](https://drive.google.com/thumbnail?id=ID_TIPOS&sz=w1000)](https://drive.google.com/file/d/ID_TIPOS/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/ID_TIPOS/view?usp=sharing) |
-| [![Status de chamado](https://drive.google.com/thumbnail?id=ID_STATUS&sz=w1000)](https://drive.google.com/file/d/ID_STATUS/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/ID_STATUS/view?usp=sharing) |
-| [![Auditoria (lista)](https://drive.google.com/thumbnail?id=ID_AUDITORIA_LISTA&sz=w1000)](https://drive.google.com/file/d/ID_AUDITORIA_LISTA/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/ID_AUDITORIA_LISTA/view?usp=sharing) |
-| [![Auditoria (detalhe)](https://drive.google.com/thumbnail?id=ID_AUDITORIA_DETALHE&sz=w1000)](https://drive.google.com/file/d/ID_AUDITORIA_DETALHE/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/ID_AUDITORIA_DETALHE/view?usp=sharing) |
+| [![Listagem de chamados](https://drive.google.com/thumbnail?id=16GVp6dxjntzJHpeh6jHG772E4GT8577n&sz=w1000)](https://drive.google.com/file/d/ID_LISTAGEM/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/16GVp6dxjntzJHpeh6jHG772E4GT8577n/view?usp=sharing) |
+| [![Detalhe do chamado](https://drive.google.com/thumbnail?id=1mnL6LoAdz1B_vFfUF3os9qlf6ZnlF7My&sz=w1000)](https://drive.google.com/file/d/1mnL6LoAdz1B_vFfUF3os9qlf6ZnlF7My/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/1mnL6LoAdz1B_vFfUF3os9qlf6ZnlF7My/view?usp=sharing) |
+| [![Abertura de chamado](https://drive.google.com/thumbnail?id=1gobCS-zBeaPeCbozDB2EofyZ4T5Cm_l-&sz=w1000)](https://drive.google.com/file/d/1gobCS-zBeaPeCbozDB2EofyZ4T5Cm_l-/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/1gobCS-zBeaPeCbozDB2EofyZ4T5Cm_l-/view?usp=sharing) |
+|  |
+| [![Notificações](https://drive.google.com/thumbnail?id=1Kk-IQ85sxrMmZq8N72KfAOVPgCZgeN6q&sz=w1000)](https://drive.google.com/file/d/1Kk-IQ85sxrMmZq8N72KfAOVPgCZgeN6q/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/1Kk-IQ85sxrMmZq8N72KfAOVPgCZgeN6q/view?usp=sharing) |
+| [![Administração de blocos](https://drive.google.com/thumbnail?id=1eOsKsl9tqinz0CzAdcsEAjnuZl7x4hLZ&sz=w1000)](https://drive.google.com/file/d/1eOsKsl9tqinz0CzAdcsEAjnuZl7x4hLZ/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/1eOsKsl9tqinz0CzAdcsEAjnuZl7x4hLZ/view?usp=sharing) |
+| [![Vínculos morador-unidade](https://drive.google.com/thumbnail?id=1f146CHygDi6a6SqtRESDiWzYXZegDYXP&sz=w1000)](https://drive.google.com/file/d/1f146CHygDi6a6SqtRESDiWzYXZegDYXP/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/1f146CHygDi6a6SqtRESDiWzYXZegDYXP/view?usp=sharing) |
+| [![Tipos de chamado](https://drive.google.com/thumbnail?id=13WFeUdjD9qN6vMz_bK7MwIX-Vm54K5dx&sz=w1000)](https://drive.google.com/file/d/13WFeUdjD9qN6vMz_bK7MwIX-Vm54K5dx/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/13WFeUdjD9qN6vMz_bK7MwIX-Vm54K5dx/view?usp=sharing) |
+| [![Status de chamado](https://drive.google.com/thumbnail?id=1yTyqQ1NXlr3Cumr30WGoeiRb72eSPZXP&sz=w1000)](https://drive.google.com/file/d/1yTyqQ1NXlr3Cumr30WGoeiRb72eSPZXP/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/1yTyqQ1NXlr3Cumr30WGoeiRb72eSPZXP/view?usp=sharing) |
+| [![Auditoria (lista)](https://drive.google.com/thumbnail?id=1x8Vmxn8d9MYnj4M2u369vgGN_J1OLD0m&sz=w1000)](https://drive.google.com/file/d/1x8Vmxn8d9MYnj4M2u369vgGN_J1OLD0m/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/1x8Vmxn8d9MYnj4M2u369vgGN_J1OLD0m/view?usp=sharing) |
+| [![Auditoria (detalhe)](https://drive.google.com/thumbnail?id=1xIB22iAiiado9ByFmsn00gRhaP90t9JM&sz=w1000)](https://drive.google.com/file/d/1xIB22iAiiado9ByFmsn00gRhaP90t9JM/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/1xIB22iAiiado9ByFmsn00gRhaP90t9JM/view?usp=sharing) |
 
 ---
 
