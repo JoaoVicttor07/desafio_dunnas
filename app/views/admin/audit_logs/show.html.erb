@@ -27,8 +27,9 @@
         <dd><%= audit_resource_label(@audit_log.auditable_type, @audit_log.auditable_id) %></dd>
       </div>
       <div>
-        <dt class="font-bold text-slate-900">IP / Request</dt>
+        <dt class="font-bold text-slate-900">IP da requisição / Request</dt>
         <dd><%= @audit_log.ip_address.presence || "-" %> / <%= @audit_log.request_id.presence || "-" %></dd>
+        <p class="mt-1 text-xs text-slate-500">Quando houver proxy, a auditoria usa o primeiro IP informado em X-Forwarded-For; caso contrário, usa o IP recebido pelo Rails.</p>
       </div>
       <div class="md:col-span-2">
         <dt class="font-bold text-slate-900">User Agent</dt>
