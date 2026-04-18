@@ -170,6 +170,16 @@ module ApplicationHelper
     }.fetch(role.to_s, role.to_s.humanize)
   end
 
+  def notifications_toggle_path
+    return notifications_path unless current_page?(notifications_path)
+
+    session[:notifications_return_to].presence || root_path_for(current_user)
+  end
+
+  def notifications_toggle_title
+    current_page?(notifications_path) ? "Fechar notificações" : "Notificações"
+  end
+
   def unread_notifications_count
     return 0 unless user_signed_in?
 
