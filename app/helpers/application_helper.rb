@@ -158,6 +158,18 @@ module ApplicationHelper
     "Morador"
   end
 
+  def role_options_for_select
+    User.roles.keys.map { |role| [role_name(role), role] }
+  end
+
+  def role_name(role)
+    {
+      "resident" => "Morador",
+      "collaborator" => "Colaborador",
+      "administrator" => "Administrador"
+    }.fetch(role.to_s, role.to_s.humanize)
+  end
+
   def unread_notifications_count
     return 0 unless user_signed_in?
 

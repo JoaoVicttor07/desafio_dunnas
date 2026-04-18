@@ -40,6 +40,29 @@ RSpec.describe "Admin user-unit links", type: :request do
       expect(response).to redirect_to(admin_user_units_path)
     end
 
+    it "shows user-unit validation messages in pt-BR" do
+      admin = create(:user, :administrator)
+
+      sign_in admin
+
+      expect do
+        post admin_user_units_path, params: {
+          user_unit: {
+            user_id: "",
+            unit_id: ""
+          }
+        }
+      end.not_to change(UserUnit, :count)
+
+      follow_redirect!
+
+      expect(response.body).to include("Morador é obrigatório")
+      expect(response.body).to include("Unidade é obrigatório")
+      expect(response.body).not_to include("User é obrigatório")
+      expect(response.body).not_to include("Unit é obrigatório")
+      expect(response.body).not_to include("deve ser morador")
+    end
+
     it "blocks non-admin users" do
       resident = create(:user, :resident)
       target_resident = create(:user, :resident)

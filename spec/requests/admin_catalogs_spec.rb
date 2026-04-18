@@ -33,6 +33,25 @@ RSpec.describe "Admin catalogs", type: :request do
 
       expect(response).to redirect_to(tickets_path)
     end
+
+    it "shows validation messages in pt-BR" do
+      admin = create(:user, :administrator)
+      sign_in admin
+
+      post ticket_types_path, params: {
+        ticket_type: {
+          title: "",
+          sla_hours: ""
+        }
+      }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include("Título não pode ficar em branco")
+      expect(response.body).to include("Prazo (SLA em horas) não pode ficar em branco")
+      expect(response.body).to include("Prazo (SLA em horas) não é um número")
+      expect(response.body).not_to include("Title não pode")
+      expect(response.body).not_to include("Sla hours")
+    end
   end
 
   describe "POST /ticket_statuses" do
@@ -68,6 +87,23 @@ RSpec.describe "Admin catalogs", type: :request do
       end.not_to change(TicketStatus, :count)
 
       expect(response).to redirect_to(tickets_path)
+    end
+
+    it "shows validation messages in pt-BR" do
+      admin = create(:user, :administrator)
+      sign_in admin
+
+      post ticket_statuses_path, params: {
+        ticket_status: {
+          name: "",
+          is_default: false,
+          is_final: false
+        }
+      }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include("Nome não pode ficar em branco")
+      expect(response.body).not_to include("Name não pode")
     end
   end
 end
