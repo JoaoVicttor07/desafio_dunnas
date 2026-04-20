@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 7.2.3", ">= 7.2.3.1"
+gem "rails", "~> 8.1.3"
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
 gem "sprockets-rails"
 # Use postgresql as the database for Active Record
@@ -62,7 +62,7 @@ gem "devise"
 
 gem "cancancan", "~> 3.6"
 
-gem "rails-i18n", "~> 7.0"
+gem "rails-i18n", "~> 8.1"
 
 gem "rspec-rails", "~> 8.0", groups: [ :development, :test ]
 
