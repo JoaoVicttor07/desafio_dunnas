@@ -65,8 +65,8 @@ class Ticket < ApplicationRecord
     )
   }
 
-  def allowed_next_statuses_for(user)
-    status = ticket_status || TicketStatus.find_by(is_default: true)
+  def allowed_next_statuses_for(user, from_status: nil)
+    status = from_status || ticket_status || TicketStatus.find_by(is_default: true)
     return [] if status.blank? || user.blank?
 
     if status.is_final?
@@ -210,7 +210,7 @@ class Ticket < ApplicationRecord
 
     return if old_status_id == new_status_id
 
-    allowed_status_ids = allowed_next_statuses_for(acting_user).map(&:id)
+    allowed_status_ids = allowed_next_statuses_for(acting_user, from_status: old_status).map(&:id)
 
     unless allowed_status_ids.include?(new_status_id)
       errors.add(:ticket_status, "não permite a transição de #{status_label(old_status)} para #{status_label(new_status)}.")
