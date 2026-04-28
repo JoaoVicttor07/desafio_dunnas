@@ -55,5 +55,28 @@ RSpec.describe Ticket, type: :model do
       expect(ticket.update(ticket_status: concluded)).to be(false)
       expect(ticket.errors[:closing_note]).to include("é obrigatório ao concluir um chamado.")
     end
+
+    it "allows collaborator to move an opened ticket to a custom intermediate status" do
+      opened = create(:ticket_status, :opened_default)
+      custom_status = create(:ticket_status, name: "Aguardando material", is_default: false, is_final: false)
+      ticket = create(:ticket, ticket_status: opened)
+
+      ticket.acting_user = create(:user, :collaborator)
+
+      expect(ticket.update(ticket_status: custom_status)).to be(true)
+      expect(ticket.reload.ticket_status).to eq(custom_status)
+    end
+
+    it "includes custom intermediate and final statuses after work has started" do
+      in_progress = create(:ticket_status, :in_progress)
+      custom_status = create(:ticket_status, name: "Aguardando vistoria", is_default: false, is_final: false)
+      final_status = create(:ticket_status, name: "Encerrado", is_default: false, is_final: true)
+      ticket = create(:ticket, ticket_status: in_progress)
+
+      allowed_statuses = ticket.allowed_next_statuses_for(create(:user, :collaborator))
+
+      expect(allowed_statuses).to include(custom_status)
+      expect(allowed_statuses).to include(final_status)
+    end
   end
 end
