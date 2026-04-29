@@ -131,6 +131,19 @@ module TicketsHelper
     end
   end
 
+  def ticket_sla_timing_classes(ticket)
+    case ticket.sla_status_key
+    when :breached
+      "text-rose-600"
+    when :at_risk
+      "text-amber-600"
+    when :on_time
+      "text-emerald-600"
+    else
+      "text-slate-500"
+    end
+  end
+
   private
 
   def humanize_sla_seconds(total_seconds)
