@@ -6,10 +6,14 @@ pt-BR:
       unit: "Apartamento"
       ticket: "Chamado"
       comment: "Comentário"
+      ticket_status: "Status de chamado"
+      ticket_type: "Tipo de chamado"
+      user_unit: "Vínculo morador-unidade"
     attributes:
       user:
         name: "Nome"
         email: "E-mail"
+        role: "Perfil"
         password: "Senha"
         password_confirmation: "Confirmação de Senha"
         remember_me: "Lembrar-me"
@@ -28,6 +32,18 @@ pt-BR:
         closing_note: "Parecer"
       comment:
         body: "Mensagem"
+      ticket_status:
+        name: "Nome"
+        is_default: "Status padrão"
+        is_final: "Status de conclusão"
+      ticket_type:
+        title: "Título"
+        sla_hours: "Prazo (SLA em horas)"
+      user_unit:
+        user: "Morador"
+        user_id: "Morador"
+        unit: "Unidade"
+        unit_id: "Unidade"
     errors:
       models:
         user:

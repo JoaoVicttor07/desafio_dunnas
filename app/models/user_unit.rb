@@ -8,7 +8,9 @@ class UserUnit < ApplicationRecord
   private
 
   def user_must_be_resident
+    return if user.blank?
     return if user&.resident?
+
     errors.add(:user, "deve ser morador")
   end
 end

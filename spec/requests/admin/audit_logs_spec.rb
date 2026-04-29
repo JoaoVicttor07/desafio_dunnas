@@ -50,12 +50,12 @@ RSpec.describe "Admin::AuditLogs", type: :request do
       get admin_audit_log_path(log)
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include("Comentario criado")
+      expect(response.body).to include("Comentário criado")
     end
 
     it "renders simplified fields in pt-BR" do
       admin = create(:user, :administrator)
-      status = create(:ticket_status, name: "Aberto")
+      status = create(:ticket_status, :opened_default)
       unit = create(:unit)
       log = create(
         :audit_log,
@@ -80,13 +80,37 @@ RSpec.describe "Admin::AuditLogs", type: :request do
       get admin_audit_log_path(log)
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include("Usuario")
-      expect(response.body).to include("Descricao")
+      expect(response.body).to include("Usuário")
+      expect(response.body).to include("Descrição")
       expect(response.body).to include("Prazo do SLA")
-      expect(response.body).to include("Inicio do SLA")
+      expect(response.body).to include("Início do SLA")
       expect(response.body).not_to include("User id")
       expect(response.body).not_to include("Description")
       expect(response.body).not_to include("Sla due at")
+    end
+
+    it "renders block fields in pt-BR" do
+      admin = create(:user, :administrator)
+      log = create(
+        :audit_log,
+        actor: admin,
+        action: "block.created",
+        change_set: {
+          "identification" => { "from" => nil, "to" => "A" },
+          "floors_count" => { "from" => nil, "to" => 10 },
+          "apartments_per_floor" => { "from" => nil, "to" => 4 }
+        }
+      )
+
+      sign_in admin
+      get admin_audit_log_path(log)
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("Identificação")
+      expect(response.body).to include("Quantidade de andares")
+      expect(response.body).to include("Apartamentos por andar")
+      expect(response.body).not_to include("Floors count")
+      expect(response.body).not_to include("Apartments per floor")
     end
   end
 end

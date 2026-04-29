@@ -87,5 +87,25 @@ RSpec.describe "Ticket status flow", type: :request do
       expect(ticket.reload.ticket_status).to eq(reopened)
       expect(ticket.resolved_at).to be_nil
     end
+
+    it "allows admin to move an opened ticket directly to a custom final status" do
+      admin = create(:user, :administrator)
+      opened = create(:ticket_status, :opened_default)
+      final_status = create(:ticket_status, name: "Encerrado", is_default: false, is_final: true)
+      ticket = create(:ticket, ticket_status: opened, resolved_at: nil)
+
+      sign_in admin
+
+      patch ticket_path(ticket), params: {
+        ticket: {
+          ticket_status_id: final_status.id,
+          closing_note: "Encerramento administrativo"
+        }
+      }
+
+      expect(response).to redirect_to(ticket_path(ticket))
+      expect(ticket.reload.ticket_status).to eq(final_status)
+      expect(ticket.resolved_at).to be_present
+    end
   end
 end

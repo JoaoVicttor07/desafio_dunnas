@@ -88,5 +88,25 @@ RSpec.describe "Tickets", type: :request do
       expect(ticket.reload.ticket_status).to eq(from_status)
       expect(ticket.resolved_at).to be_nil
     end
+
+    it "allows collaborator to move the ticket to a custom intermediate status" do
+      collaborator = create(:user, :collaborator)
+      ticket_type = create(:ticket_type)
+      create(:user_ticket_type, user: collaborator, ticket_type: ticket_type)
+
+      opened = create(:ticket_status, :opened_default)
+      custom_status = create(:ticket_status, name: "Aguardando material", is_default: false, is_final: false)
+      ticket = create(:ticket, ticket_type: ticket_type, ticket_status: opened)
+
+      sign_in collaborator
+      patch ticket_path(ticket), params: {
+        ticket: {
+          ticket_status_id: custom_status.id
+        }
+      }
+
+      expect(response).to redirect_to(ticket_path(ticket))
+      expect(ticket.reload.ticket_status).to eq(custom_status)
+    end
   end
 end

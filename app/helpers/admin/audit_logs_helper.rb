@@ -6,43 +6,47 @@ module Admin::AuditLogsHelper
     "security.access_denied" => "Acesso negado",
     "ticket.created" => "Chamado criado",
     "ticket.updated" => "Chamado atualizado",
-    "ticket.deleted" => "Chamado excluido",
+    "ticket.deleted" => "Chamado excluído",
     "ticket.status_changed" => "Status do chamado alterado",
-    "comment.created" => "Comentario criado",
+    "comment.created" => "Comentário criado",
     "block.created" => "Bloco criado",
     "block.updated" => "Bloco atualizado",
-    "block.deleted" => "Bloco excluido",
+    "block.deleted" => "Bloco excluído",
     "ticket_status.created" => "Status de chamado criado",
     "ticket_status.updated" => "Status de chamado atualizado",
-    "ticket_status.deleted" => "Status de chamado excluido",
+    "ticket_status.deleted" => "Status de chamado excluído",
     "ticket_type.created" => "Tipo de chamado criado",
     "ticket_type.updated" => "Tipo de chamado atualizado",
-    "ticket_type.deleted" => "Tipo de chamado excluido",
-    "admin.user.created" => "Usuario criado",
-    "admin.user.updated" => "Usuario atualizado",
-    "admin.user.deleted" => "Usuario excluido",
-    "admin.user_unit_link.created" => "Vinculo usuario-unidade criado",
-    "admin.user_unit_link.deleted" => "Vinculo usuario-unidade excluido"
+    "ticket_type.deleted" => "Tipo de chamado excluído",
+    "admin.user.created" => "Usuário criado",
+    "admin.user.updated" => "Usuário atualizado",
+    "admin.user.deleted" => "Usuário excluído",
+    "admin.user_unit_link.created" => "Vínculo morador-unidade criado",
+    "admin.user_unit_link.deleted" => "Vínculo morador-unidade excluído"
   }.freeze
 
   AUDITABLE_TYPE_LABELS = {
     "Ticket" => "Chamado",
-    "Comment" => "Comentario",
+    "Comment" => "Comentário",
     "Block" => "Bloco",
     "TicketStatus" => "Status de chamado",
     "TicketType" => "Tipo de chamado",
-    "User" => "Usuario",
-    "UserUnit" => "Vinculo usuario-unidade"
+    "User" => "Usuário",
+    "UserUnit" => "Vínculo morador-unidade"
   }.freeze
 
   TECHNICAL_CONTEXT_KEYS = %w[method path controller action_name].freeze
 
   FIELD_LABELS = {
     "id" => "ID",
-    "user_id" => "Usuario",
-    "description" => "Descricao",
+    "name" => "Nome",
+    "title" => "Título",
+    "role" => "Perfil",
+    "user_id" => "Usuário",
+    "description" => "Descrição",
     "sla_due_at" => "Prazo do SLA",
-    "sla_started_at" => "Inicio do SLA",
+    "sla_hours" => "Prazo (SLA em horas)",
+    "sla_started_at" => "Início do SLA",
     "resolved_at" => "Resolvido em",
     "created_at" => "Criado em",
     "updated_at" => "Atualizado em",
@@ -50,6 +54,11 @@ module Admin::AuditLogsHelper
     "ticket_type_id" => "Tipo de chamado",
     "unit_id" => "Unidade",
     "ticket_id" => "Chamado",
+    "identification" => "Identificação",
+    "floors_count" => "Quantidade de andares",
+    "apartments_per_floor" => "Apartamentos por andar",
+    "is_default" => "Status padrão",
+    "is_final" => "Status de conclusão",
     "attachments_count" => "Quantidade de anexos",
     "photos_count" => "Quantidade de fotos",
     "from_status" => "Status anterior",
@@ -127,14 +136,24 @@ module Admin::AuditLogsHelper
     when TrueClass
       "Sim"
     when FalseClass
-      "Nao"
+      "Não"
     when Array
       value.map { |item| audit_value_label(field, item) }.join(", ")
     when Hash
       value.to_json
     else
-      value
+      audit_plain_value_label(field, value)
     end
+  end
+
+  def audit_plain_value_label(field, value)
+    normalized_field = field.to_s.sub(/\.(from|to)\z/, "")
+
+    if normalized_field == "role"
+      return role_name(value)
+    end
+
+    value
   end
 
   def audit_reference_value(field, value)

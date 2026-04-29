@@ -9,12 +9,22 @@
     </div>
 
     <% unread_count = current_user.notifications.unread.count %>
-    <% if unread_count.positive? %>
-      <%= button_to "Marcar todas como lidas", mark_all_as_read_notifications_path, method: :patch, class: "btn-brand-soft px-4 py-2 text-sm" %>
+    <% total_count = current_user.notifications.count %>
+    <% if total_count.positive? %>
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <% if unread_count.positive? %>
+          <%= button_to "Marcar todas como lidas", mark_all_as_read_notifications_path, method: :patch, class: "btn-brand-soft px-4 py-2 text-sm" %>
+        <% end %>
+        <%= button_to "Limpar notificações",
+          destroy_all_notifications_path,
+          method: :delete,
+          form: { data: { turbo_confirm: "Deseja apagar todas as notificações?" } },
+          class: "rounded-xl border border-rose-200 bg-white px-4 py-2 text-sm font-semibold text-rose-700 transition-colors hover:bg-rose-50" %>
+      </div>
     <% end %>
   </div>
 
-  <div class="panel-surface overflow-hidden rounded-2xl">
+  <div class="panel-surface max-h-[70vh] overflow-y-auto rounded-2xl">
     <% if @notifications.any? %>
       <ul class="divide-y divide-violet-100/80">
         <% @notifications.each do |notification| %>

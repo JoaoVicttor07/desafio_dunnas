@@ -7,7 +7,7 @@ class AuditLogger
         auditable: auditable,
         context_data: safe_json(merge_request_context(context_data, request)),
         change_set: safe_json(change_set),
-        ip_address: request&.remote_ip,
+        ip_address: client_ip_from(request),
         request_id: request&.request_id,
         user_agent: request&.user_agent
       )
@@ -43,6 +43,13 @@ class AuditLogger
         controller: request.path_parameters[:controller],
         action_name: request.path_parameters[:action]
       )
+    end
+
+    def client_ip_from(request)
+      return nil unless request
+
+      forwarded_ips = request.get_header("HTTP_X_FORWARDED_FOR").to_s.split(",").map(&:strip)
+      forwarded_ips.find(&:present?) || request.remote_ip
     end
 
     def normalize_value(value)

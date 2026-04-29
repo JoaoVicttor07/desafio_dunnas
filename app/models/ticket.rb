@@ -65,11 +65,24 @@ class Ticket < ApplicationRecord
     )
   }
 
-  def allowed_next_statuses_for(user)
-    status = ticket_status || TicketStatus.find_by(is_default: true)
-    keys = allowed_next_status_keys_for(status, user)
+  def allowed_next_statuses_for(user, from_status: nil)
+    status = from_status || ticket_status || TicketStatus.find_by(is_default: true)
+    return [] if status.blank? || user.blank?
 
-    TicketStatus.order(:name).select { |ticket_status| keys.include?(normalized_status_name(ticket_status)) }
+    if status.is_final?
+      return user.administrator? ? reopened_statuses : []
+    end
+
+    available_statuses = if reopened_status?(status)
+      workflow_statuses(excluding: status) + final_statuses
+    elsif status.is_default?
+      base_statuses = workflow_statuses(excluding: status)
+      user.administrator? ? base_statuses + final_statuses : base_statuses
+    else
+      workflow_statuses(excluding: status) + final_statuses
+    end
+
+    available_statuses.uniq
   end
 
   def sla_status_key(reference_time = Time.current)
@@ -195,13 +208,11 @@ class Ticket < ApplicationRecord
     old_status = TicketStatus.find_by(id: old_status_id)
     new_status = TicketStatus.find_by(id: new_status_id)
 
-    old_key = normalized_status_name(old_status)
-    new_key = normalized_status_name(new_status)
-    allowed_keys = allowed_next_status_keys_for(old_status, acting_user)
+    return if old_status_id == new_status_id
 
-    return if old_key == new_key
+    allowed_status_ids = allowed_next_statuses_for(acting_user, from_status: old_status).map(&:id)
 
-    unless allowed_keys.include?(new_key)
+    unless allowed_status_ids.include?(new_status_id)
       errors.add(:ticket_status, "não permite a transição de #{status_label(old_status)} para #{status_label(new_status)}.")
     end
   end
@@ -237,19 +248,22 @@ class Ticket < ApplicationRecord
     started_at + ticket_type.sla_hours.hours
   end
 
-  def allowed_next_status_keys_for(status, user = nil)
-    case normalized_status_name(status)
-    when "aberto"
-      user&.administrator? ? [ "em andamento", "concluido" ] : [ "em andamento" ]
-    when "em andamento"
-      [ "concluido" ]
-    when "concluido"
-      user&.administrator? ? [ "reaberto" ] : []
-    when "reaberto"
-      user&.administrator? ? [ "em andamento", "concluido" ] : [ "em andamento" ]
-    else
-      []
+  def workflow_statuses(excluding: nil)
+    TicketStatus.order(:name).reject do |status|
+      status.id == excluding&.id || status.is_default? || status.is_final? || reopened_status?(status)
     end
+  end
+
+  def final_statuses
+    TicketStatus.where(is_final: true).order(:name).to_a
+  end
+
+  def reopened_statuses
+    TicketStatus.order(:name).select { |status| reopened_status?(status) }
+  end
+
+  def reopened_status?(status)
+    normalized_status_name(status) == "reaberto"
   end
 
   def status_label(status)
