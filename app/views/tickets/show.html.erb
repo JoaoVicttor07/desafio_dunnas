@@ -11,7 +11,7 @@
       <p class="text-gray-500 mt-1 font-medium"><%= @ticket.ticket_type.title %></p>
     </div>
     <div class="text-right">
-      <span class="mb-2 inline-flex rounded-full bg-violet-100 px-4 py-2 text-sm font-bold leading-5 text-violet-800">
+      <span class="mb-2 inline-flex rounded-full px-4 py-2 text-sm font-bold leading-5 <%= ticket_status_badge_classes(@ticket.ticket_status) %>">
         <%= @ticket.ticket_status.name %>
       </span>
       <p class="text-sm text-gray-500 font-semibold">
@@ -103,56 +103,145 @@
   </div>
 
   <% if can?(:update, @ticket) %>
-          <% allowed_next_statuses = @ticket.allowed_next_statuses_for(current_user) %>
-          <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-4 mb-6">
-            <h3 class="text-sm font-bold text-gray-900 mb-3">Atualizar Status</h3>
+    <% allowed_next_statuses = @ticket.allowed_next_statuses_for(current_user) %>
+    <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-5 mb-6">
+      <% current_status = @ticket.ticket_status %>
 
-            <% if allowed_next_statuses.any? %>
-              <%= form_with(model: @ticket, local: true, class: "flex flex-col sm:flex-row gap-3 items-start sm:items-end", data: { status_form: true }) do |f| %>
-                <div class="w-full sm:w-72">
-                  <%= f.label :ticket_status_id, "Status", class: "block mb-2 text-sm font-bold text-gray-800" %>
-                  <%= f.select :ticket_status_id,
-                    options_for_select(
-                      allowed_next_statuses.map do |status|
-                        [
-                          status.name,
-                          status.id,
-                          {
-                            "data-final" => status.is_final?.to_s,
-                            "data-reopen" => (I18n.transliterate(status.name.to_s).downcase.strip == "reaberto").to_s
-                          }
-                        ]
-                      end,
-                      allowed_next_statuses.first.id
-                    ),
-                    {},
-                    class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-3 focus:ring-violet-200 focus:border-violet-500",
-                    data: { status_select: true } %>
-                </div>
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div class="flex items-start gap-3">
+          <span class="mt-0.5 inline-flex h-9 w-9 items-center justify-center rounded-full border <%= ticket_status_indicator_ring_classes(current_status) %>">
+            <span class="h-3 w-3 rounded-full <%= ticket_status_indicator_dot_classes(current_status) %>"></span>
+          </span>
 
-                <div class="w-full sm:w-96 hidden" data-closing-note-field>
-                  <%= f.label :closing_note, "Parecer (Obrigatório ao concluir)", class: "block mb-2 text-sm font-bold text-gray-800" %>
-                  <%= f.text_area :closing_note, rows: 2, placeholder: "Ex: Vazamento corrigido, teste de estanqueidade realizado e area liberada.", class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-3 outline-none focus:ring-violet-200 focus:border-violet-500", data: { closing_note_input: true } %>
-                </div>
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <h3 class="text-lg font-bold text-gray-900">Status do chamado</h3>
+              <span class="inline-flex rounded-full px-3 py-1 text-xs font-bold leading-5 <%= ticket_status_badge_classes(current_status) %>">
+                <%= current_status.name %>
+              </span>
+            </div>
+            <p class="mt-1 text-sm text-slate-500"><%= ticket_status_state_description(current_status) %></p>
+          </div>
+        </div>
 
-                <% if current_user.administrator? %>
-                  <div class="w-full sm:w-96 hidden" data-reopen-reason-field>
-                    <%= f.label :reopen_reason, "Motivo (Obrigatório caso vá reabrir)", class: "block mb-2 text-sm font-bold text-red-800" %>
-                    <%= f.text_field :reopen_reason, placeholder: "Ex: Diagnóstico incompleto", class: "bg-red-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-3 outline-none focus:ring-red-500 focus:border-red-500", data: { reopen_reason_input: true } %>
+        <% if allowed_next_statuses.any? %>
+          <%= form_with(model: @ticket, local: true, class: "w-full lg:w-auto", data: { status_form: true }) do |f| %>
+            <%= f.hidden_field :ticket_status_id, value: current_status.id, data: { status_hidden: true, current_status_id: current_status.id } %>
+
+            <div class="flex flex-col gap-3 lg:items-end">
+              <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <div class="relative w-full sm:min-w-[20rem]" data-status-combobox>
+                  <button type="button" class="inline-flex w-full items-center justify-between gap-3 rounded-lg border border-violet-200 bg-white px-4 py-3 text-sm font-semibold text-violet-700 shadow-sm transition-colors hover:bg-violet-50" data-status-toggle aria-expanded="false" aria-haspopup="true">
+                    <span class="inline-flex items-center gap-3">
+                      <span class="inline-flex h-6 w-6 items-center justify-center rounded-full border <%= ticket_status_indicator_ring_classes(current_status) %>" data-status-trigger-ring>
+                        <span class="h-2.5 w-2.5 rounded-full <%= ticket_status_indicator_dot_classes(current_status) %>" data-status-trigger-dot></span>
+                      </span>
+                      <span class="truncate" data-status-trigger-label><%= current_status.name %></span>
+                    </span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-status-chevron>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  <div class="absolute right-0 top-[calc(100%+0.5rem)] z-20 hidden w-full overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl" data-status-menu>
+                    <div class="max-h-80 overflow-y-auto p-3">
+                      <p class="px-2 pb-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Selecionar status</p>
+
+                      <div class="space-y-3">
+                        <button
+                          type="button"
+                          class="flex w-full items-center justify-between gap-3 rounded-lg border border-transparent px-3 py-3 text-left transition-colors hover:bg-slate-50"
+                          data-status-option
+                          data-status-id="<%= current_status.id %>"
+                          data-status-name="<%= current_status.name %>"
+                          data-status-kind="Atual"
+                          data-status-description="<%= ticket_status_state_description(current_status) %>"
+                          data-status-final="<%= current_status.is_final?.to_s %>"
+                          data-status-reopen="<%= ticket_status_reopened?(current_status).to_s %>"
+                          data-status-badge-class="<%= ticket_status_badge_classes(current_status) %>"
+                          data-status-ring-class="<%= ticket_status_indicator_ring_classes(current_status) %>"
+                          data-status-dot-class="<%= ticket_status_indicator_dot_classes(current_status) %>"
+                          data-status-current="true"
+                        >
+                          <span class="flex items-center gap-3">
+                            <span class="inline-flex h-7 w-7 items-center justify-center rounded-full border <%= ticket_status_indicator_ring_classes(current_status) %>">
+                              <span class="h-3 w-3 rounded-full <%= ticket_status_indicator_dot_classes(current_status) %>"></span>
+                            </span>
+                            <span class="flex items-center gap-2">
+                              <span class="text-base font-semibold text-slate-900"><%= current_status.name %></span>
+                              <span class="rounded bg-slate-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-700">Atual</span>
+                            </span>
+                          </span>
+                          <span class="hidden text-violet-600" data-status-check>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                          </span>
+                        </button>
+
+                        <% ticket_status_transition_groups(allowed_next_statuses).each do |group_label, statuses| %>
+                          <div class="space-y-1">
+                            <p class="px-3 pt-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400"><%= group_label %></p>
+                            <% statuses.each do |status| %>
+                              <button
+                                type="button"
+                                class="flex w-full items-center justify-between gap-3 rounded-lg border border-transparent px-3 py-3 text-left transition-colors hover:bg-slate-50"
+                                data-status-option
+                                data-status-id="<%= status.id %>"
+                                data-status-name="<%= status.name %>"
+                                data-status-kind="<%= ticket_status_transition_kind(status) %>"
+                                data-status-description="<%= ticket_status_transition_description(status) %>"
+                                data-status-final="<%= status.is_final?.to_s %>"
+                                data-status-reopen="<%= ticket_status_reopened?(status).to_s %>"
+                                data-status-badge-class="<%= ticket_status_badge_classes(status) %>"
+                                data-status-ring-class="<%= ticket_status_indicator_ring_classes(status) %>"
+                                data-status-dot-class="<%= ticket_status_indicator_dot_classes(status) %>"
+                              >
+                                <span class="flex items-center gap-3">
+                                  <span class="inline-flex h-7 w-7 items-center justify-center rounded-full border <%= ticket_status_indicator_ring_classes(status) %>">
+                                    <span class="h-3 w-3 rounded-full <%= ticket_status_indicator_dot_classes(status) %>"></span>
+                                  </span>
+                                  <span class="text-base font-semibold text-slate-900"><%= status.name %></span>
+                                </span>
+                                <span class="hidden text-violet-600" data-status-check>
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                  </svg>
+                                </span>
+                              </button>
+                            <% end %>
+                          </div>
+                        <% end %>
+                      </div>
+                    </div>
                   </div>
-                <% end %>
-
-                <div>
-                  <%= f.submit "Salvar", class: "btn-brand px-6 py-2 text-sm" %>
                 </div>
-              <% end %>
-            <% else %>
-              <p class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                Nenhuma transição de status disponível para este chamado neste momento.
-              </p>
+
+                <button type="button" class="hidden text-sm font-semibold text-slate-600 hover:text-slate-900" data-status-cancel>Cancelar</button>
+                <%= f.submit "Salvar", class: "btn-brand hidden px-5 py-3 text-sm", disabled: true, data: { status_submit: true } %>
+              </div>
+            </div>
+
+            <div class="mt-4 hidden" data-closing-note-field>
+              <%= f.label :closing_note, "Parecer (Obrigatório ao concluir)", class: "block mb-2 text-sm font-bold text-gray-800" %>
+              <%= f.text_area :closing_note, rows: 2, placeholder: "Ex: Vazamento corrigido, teste de estanqueidade realizado e area liberada.", class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-3 outline-none focus:ring-violet-200 focus:border-violet-500", data: { closing_note_input: true } %>
+            </div>
+
+            <% if current_user.administrator? %>
+              <div class="mt-4 hidden" data-reopen-reason-field>
+                <%= f.label :reopen_reason, "Motivo (Obrigatório caso vá reabrir)", class: "block mb-2 text-sm font-bold text-red-800" %>
+                <%= f.text_field :reopen_reason, placeholder: "Ex: Diagnóstico incompleto", class: "bg-red-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-3 outline-none focus:ring-red-500 focus:border-red-500", data: { reopen_reason_input: true } %>
+              </div>
             <% end %>
+          <% end %>
+        <% else %>
+          <div class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+            <span class="font-semibold text-slate-700">Status atual:</span> <%= current_status.name %>
           </div>
         <% end %>
+      </div>
+    </div>
+  <% end %>
 
   <div class="mb-8">
     <h3 class="text-xl font-bold text-gray-900 mb-4 border-b pb-2">Histórico da Conversa</h3>
@@ -292,38 +381,120 @@
 
     const statusForm = document.querySelector('[data-status-form="true"]');
     if (statusForm) {
-      const statusSelect = statusForm.querySelector('[data-status-select="true"]');
+      const statusHiddenInput = statusForm.querySelector('[data-status-hidden="true"]');
+      const currentStatusId = statusHiddenInput && statusHiddenInput.dataset.currentStatusId;
+      const statusToggle = statusForm.querySelector("[data-status-toggle]");
+      const statusMenu = statusForm.querySelector("[data-status-menu]");
+      const statusChevron = statusForm.querySelector("[data-status-chevron]");
+      const statusLabel = statusForm.querySelector("[data-status-trigger-label]");
+      const statusRing = statusForm.querySelector("[data-status-trigger-ring]");
+      const statusDot = statusForm.querySelector("[data-status-trigger-dot]");
+      const statusCancel = statusForm.querySelector("[data-status-cancel]");
+      const statusSubmit = statusForm.querySelector('[data-status-submit="true"]');
+      const statusOptions = Array.from(statusForm.querySelectorAll("[data-status-option]"));
       const closingNoteField = statusForm.querySelector("[data-closing-note-field]");
       const reopenReasonField = statusForm.querySelector("[data-reopen-reason-field]");
       const closingNoteInput = statusForm.querySelector('[data-closing-note-input="true"]');
       const reopenReasonInput = statusForm.querySelector('[data-reopen-reason-input="true"]');
+      const statusChecks = statusForm.querySelectorAll("[data-status-check]");
 
-      const toggleStatusSpecificFields = function() {
-        if (!statusSelect) return;
+      const setMenuOpen = function(open) {
+        if (!statusMenu) return;
 
-        const selectedOption = statusSelect.options[statusSelect.selectedIndex];
-        const concluding = selectedOption && selectedOption.dataset.final === "true";
-        const reopening = selectedOption && selectedOption.dataset.reopen === "true";
-
-        if (closingNoteField) {
-          closingNoteField.classList.toggle("hidden", !concluding);
+        statusMenu.classList.toggle("hidden", !open);
+        if (statusChevron) {
+          statusChevron.classList.toggle("rotate-180", open);
         }
-        if (closingNoteInput) {
-          closingNoteInput.required = concluding;
-          if (!concluding) closingNoteInput.value = "";
-        }
-
-        if (reopenReasonField) {
-          reopenReasonField.classList.toggle("hidden", !reopening);
-        }
-        if (reopenReasonInput) {
-          reopenReasonInput.required = reopening;
-          if (!reopening) reopenReasonInput.value = "";
+        if (statusToggle) {
+          statusToggle.setAttribute("aria-expanded", open ? "true" : "false");
         }
       };
 
-      statusSelect.addEventListener("change", toggleStatusSpecificFields);
-      toggleStatusSpecificFields();
+      const updateStatusUI = function(option) {
+        if (!option || !statusHiddenInput) return;
+
+        statusHiddenInput.value = option.dataset.statusId || currentStatusId;
+        if (statusLabel) statusLabel.textContent = option.dataset.statusName || "";
+        if (statusRing) statusRing.className = `inline-flex h-6 w-6 items-center justify-center rounded-full border ${option.dataset.statusRingClass || ""}`;
+        if (statusDot) statusDot.className = `h-2.5 w-2.5 rounded-full ${option.dataset.statusDotClass || ""}`;
+
+        const changed = option.dataset.statusId !== currentStatusId;
+        const concluding = option.dataset.statusFinal === "true";
+        const reopening = option.dataset.statusReopen === "true";
+
+        if (closingNoteField) {
+          closingNoteField.classList.toggle("hidden", !(changed && concluding));
+        }
+        if (closingNoteInput) {
+          closingNoteInput.required = changed && concluding;
+          if (!(changed && concluding)) closingNoteInput.value = "";
+        }
+
+        if (reopenReasonField) {
+          reopenReasonField.classList.toggle("hidden", !(changed && reopening));
+        }
+        if (reopenReasonInput) {
+          reopenReasonInput.required = changed && reopening;
+          if (!(changed && reopening)) reopenReasonInput.value = "";
+        }
+
+        if (statusCancel) {
+          statusCancel.classList.toggle("hidden", !changed);
+        }
+
+        if (statusSubmit) {
+          statusSubmit.disabled = !changed;
+          statusSubmit.classList.toggle("hidden", !changed);
+        }
+
+        statusOptions.forEach((statusOption) => {
+          statusOption.classList.remove("bg-violet-50", "border-violet-200");
+          statusOption.classList.add("border-transparent");
+        });
+
+        option.classList.add("bg-violet-50", "border-violet-200");
+        option.classList.remove("border-transparent");
+
+        statusChecks.forEach((check) => check.classList.add("hidden"));
+        const activeCheck = option.querySelector("[data-status-check]");
+        if (activeCheck) {
+          activeCheck.classList.remove("hidden");
+        }
+      };
+
+      if (statusToggle) {
+        statusToggle.addEventListener("click", function() {
+          setMenuOpen(statusMenu.classList.contains("hidden"));
+        });
+      }
+
+      statusOptions.forEach((option) => {
+        option.addEventListener("click", function() {
+          updateStatusUI(option);
+          setMenuOpen(false);
+        });
+      });
+
+      if (statusCancel) {
+        statusCancel.addEventListener("click", function() {
+          const currentOption = statusOptions.find((option) => option.dataset.statusId === currentStatusId);
+          if (currentOption) {
+            updateStatusUI(currentOption);
+          }
+          setMenuOpen(false);
+        });
+      }
+
+      document.addEventListener("click", function(event) {
+        if (!statusForm.contains(event.target)) {
+          setMenuOpen(false);
+        }
+      });
+
+      const initialOption = statusOptions.find((option) => option.dataset.statusId === currentStatusId) || statusOptions[0];
+      if (initialOption) {
+        updateStatusUI(initialOption);
+      }
     }
 
     const commentPhotoInput = document.querySelector('[data-comment-photo-input="true"]');

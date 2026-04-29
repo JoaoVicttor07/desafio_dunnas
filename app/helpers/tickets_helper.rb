@@ -1,4 +1,79 @@
 module TicketsHelper
+  def ticket_status_badge_classes(status)
+    return "bg-slate-100 text-slate-700" if status.blank?
+
+    if ticket_status_reopened?(status)
+      "bg-amber-100 text-amber-800"
+    elsif status.is_final?
+      "bg-emerald-100 text-emerald-800"
+    elsif status.is_default?
+      "bg-sky-100 text-sky-800"
+    else
+      "bg-violet-100 text-violet-800"
+    end
+  end
+
+  def ticket_status_transition_kind(status)
+    return "Reabertura" if ticket_status_reopened?(status)
+    return "Conclusão" if status&.is_final?
+
+    "Andamento"
+  end
+
+  def ticket_status_transition_description(status)
+    return "Reabre o chamado e reinicia o ciclo do SLA." if ticket_status_reopened?(status)
+    return "Conclui o chamado e solicita um parecer." if status&.is_final?
+    return "Marca o ponto inicial do fluxo." if status&.is_default?
+
+    "Mantém o chamado em andamento sem encerrar o atendimento."
+  end
+
+  def ticket_status_transition_groups(statuses)
+    grouped_statuses = statuses.group_by { |status| ticket_status_transition_kind(status) }
+
+    ["Andamento", "Conclusão", "Reabertura"].filter_map do |label|
+      next if grouped_statuses[label].blank?
+
+      [label, grouped_statuses[label]]
+    end
+  end
+
+  def ticket_status_state_description(status)
+    return "Chamado reaberto para um novo ciclo de atendimento." if ticket_status_reopened?(status)
+    return "Chamado concluído no fluxo atual." if status&.is_final?
+    return "Chamado aberto aguardando o início do atendimento." if status&.is_default?
+
+    "Chamado em andamento dentro do fluxo de atendimento."
+  end
+
+  def ticket_status_indicator_ring_classes(status)
+    if ticket_status_reopened?(status)
+      "border-amber-500 bg-amber-50"
+    elsif status&.is_final?
+      "border-emerald-500 bg-emerald-50"
+    elsif status&.is_default?
+      "border-sky-500 bg-sky-50"
+    else
+      "border-violet-500 bg-violet-50"
+    end
+  end
+
+  def ticket_status_indicator_dot_classes(status)
+    if ticket_status_reopened?(status)
+      "bg-amber-500"
+    elsif status&.is_final?
+      "bg-emerald-500"
+    elsif status&.is_default?
+      "bg-sky-500"
+    else
+      "bg-violet-500"
+    end
+  end
+
+  def ticket_status_reopened?(status)
+    I18n.transliterate(status&.name.to_s).downcase.strip == "reaberto"
+  end
+
   def tickets_sort_next_direction(current_sort_by, current_sort_dir, column)
     return "asc" unless current_sort_by == column
 
