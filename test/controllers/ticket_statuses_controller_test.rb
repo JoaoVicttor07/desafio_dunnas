@@ -30,7 +30,9 @@ class TicketStatusesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update ticket_status" do
-    patch ticket_status_url(@ticket_status), params: { ticket_status: { is_default: true, is_final: false, name: "Aberto atualizado" } }
+    editable_status = ticket_statuses(:two)
+
+    patch ticket_status_url(editable_status), params: { ticket_status: { is_default: false, is_final: false, name: "Em análise" } }
     assert_redirected_to ticket_statuses_url
   end
 
