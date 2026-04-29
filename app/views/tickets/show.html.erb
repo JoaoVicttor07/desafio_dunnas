@@ -323,32 +323,40 @@
     </div>
   </div>
 
-  <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-6">
+  <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm mb-6">
     <% if can?(:create, Comment.new(ticket: @ticket)) %>
-      <h4 class="text-lg font-bold text-gray-900 mb-4">Adicionar um Comentário</h4>
+      <div class="mb-4">
+        <h4 class="text-lg font-bold text-gray-900">Adicionar comentário</h4>
+        <p class="mt-1 text-sm text-slate-500">A mensagem será visível para todos os envolvidos no chamado.</p>
+      </div>
+
       <%= form_with(model: [@ticket, Comment.new], local: true, class: "space-y-4") do |form| %>
         <div>
-          <%= form.text_area :body, rows: 3, class: "block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-violet-200 focus:border-violet-500 sm:text-sm", placeholder: "Escreva sua mensagem aqui..." %>
+          <%= form.text_area :body, rows: 5, class: "block w-full resize-y rounded-lg border border-slate-300 bg-slate-50/50 px-4 py-3 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-500 focus:border-violet-500 focus:bg-white focus:ring-2 focus:ring-violet-100", placeholder: "Escreva sua mensagem aqui..." %>
         </div>
-        <div class="flex flex-wrap items-center gap-3">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <%= form.file_field :photos,
             multiple: true,
             accept: "image/png,image/jpeg,image/webp,image/gif,image/heic,image/heif",
             class: "hidden",
             data: { comment_photo_input: true } %>
 
-          <label for="comment_photos" class="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-violet-200 bg-white text-violet-700 transition-colors hover:bg-violet-50" title="Anexar fotos">
-            <span class="sr-only">Anexar fotos ao comentario</span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 16l5-5 4 4 5-6 4 5M3 19h18M6 7h.01M8 4h8a2 2 0 012 2v10a2 2 0 01-2 2H8a2 2 0 01-2-2V6a2 2 0 012-2z" />
-            </svg>
-          </label>
+          <div class="flex flex-wrap items-center gap-3">
+            <label for="comment_photos" class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 transition-colors hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 6.5l-7.78 7.78a3 3 0 104.24 4.24l8.49-8.48a5 5 0 00-7.07-7.08L5.9 11.45a7 7 0 109.9 9.9l6.36-6.36" />
+              </svg>
+              Anexar arquivo
+            </label>
 
-          <div class="hidden" data-comment-photo-preview-container>
-            <div class="flex flex-wrap gap-2" data-comment-photo-preview-grid></div>
+            <div class="hidden" data-comment-photo-preview-container>
+              <div class="flex flex-wrap gap-2" data-comment-photo-preview-grid></div>
+            </div>
           </div>
 
-          <%= form.submit "Enviar Mensagem", class: "btn-brand px-6 py-2 text-sm cursor-pointer" %>
+          <%= form.button type: "submit", class: "btn-brand inline-flex cursor-pointer items-center justify-center gap-2 px-5 py-3 text-sm" do %>
+            Enviar mensagem
+          <% end %>
         </div>
       <% end %>
     <% end %>
