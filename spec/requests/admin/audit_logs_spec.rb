@@ -50,7 +50,7 @@ RSpec.describe "Admin::AuditLogs", type: :request do
       get admin_audit_log_path(log)
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include("Comentario criado")
+      expect(response.body).to include("Comentário criado")
     end
 
     it "renders simplified fields in pt-BR" do

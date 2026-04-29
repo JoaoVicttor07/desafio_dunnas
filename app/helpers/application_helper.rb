@@ -159,7 +159,7 @@ module ApplicationHelper
   end
 
   def role_options_for_select
-    User.roles.keys.map { |role| [role_name(role), role] }
+    User.roles.keys.map { |role| [ role_name(role), role ] }
   end
 
   def role_name(role)

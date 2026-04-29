@@ -31,10 +31,10 @@ module TicketsHelper
   def ticket_status_transition_groups(statuses)
     grouped_statuses = statuses.group_by { |status| ticket_status_transition_kind(status) }
 
-    ["Andamento", "Conclusão", "Reabertura"].filter_map do |label|
+    [ "Andamento", "Conclusão", "Reabertura" ].filter_map do |label|
       next if grouped_statuses[label].blank?
 
-      [label, grouped_statuses[label]]
+      [ label, grouped_statuses[label] ]
     end
   end
 
