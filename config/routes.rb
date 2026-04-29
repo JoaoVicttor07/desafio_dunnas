@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   resources :blocks, except: [ :show ]
   resources :notifications, only: [ :index, :update ] do
     patch :mark_all_as_read, on: :collection
+    delete :destroy_all, on: :collection
   end
   devise_for :users, skip: [ :registrations, :passwords ], controllers: { sessions: "users/sessions" }
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

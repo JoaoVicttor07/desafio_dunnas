@@ -19,6 +19,12 @@ class NotificationsController < ApplicationController
     redirect_to notifications_path, notice: "Todas as notificações foram marcadas como lidas."
   end
 
+  def destroy_all
+    current_user.notifications.destroy_all
+
+    redirect_to notifications_path, notice: "Todas as notificações foram apagadas."
+  end
+
   private
 
   def store_notifications_return_path
