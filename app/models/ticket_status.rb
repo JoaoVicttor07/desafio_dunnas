@@ -1,12 +1,13 @@
 class TicketStatus < ApplicationRecord
-  has_many :tickets, dependent: :restrict_with_exception
+  has_many :tickets, dependent: :restrict_with_error
 
   validates :name, presence: true, uniqueness: { case_sensitive: false }
   validates :is_default, inclusion: { in: [ true, false ] }
   validates :is_final, inclusion: { in: [ true, false ] }
 
   validate :only_one_default, if: :is_default?
-  validate :opened_status_rules
+  validate :default_status_rules
+  before_destroy :prevent_default_status_destroy
 
   private
 
@@ -16,18 +17,14 @@ class TicketStatus < ApplicationRecord
     end
   end
 
-  def opened_status_rules
-    return if name.blank?
-
-    if opened_status?
-      errors.add(:is_default, "deve permanecer marcado para o status Aberto") unless is_default?
-      errors.add(:is_final, "não pode ser marcado para o status Aberto") if is_final?
-    elsif is_default?
-      errors.add(:is_default, "só pode ser marcado no status Aberto")
-    end
+  def default_status_rules
+    errors.add(:is_final, "não pode ser marcado para o status padrão") if is_default? && is_final?
   end
 
-  def opened_status?
-    I18n.transliterate(name.to_s).downcase.strip == "aberto"
+  def prevent_default_status_destroy
+    return unless is_default?
+
+    errors.add(:base, "O status padrão não pode ser excluído.")
+    throw(:abort)
   end
 end
