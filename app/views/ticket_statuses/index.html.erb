@@ -21,7 +21,7 @@
             <% if can?(:update, ticket_status) %>
               <%= link_to "Editar", edit_ticket_status_path(ticket_status), class: "btn-brand-soft w-full px-3.5 py-2.5 text-center text-sm sm:w-auto" %>
             <% end %>
-            <% if can?(:destroy, ticket_status) %>
+            <% if can?(:destroy, ticket_status) && !ticket_status.is_default? %>
               <%= button_to "Excluir", ticket_status, method: :delete, class: "w-full rounded-xl bg-rose-600 px-3.5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-rose-700 cursor-pointer sm:w-auto", data: { turbo_confirm: "Você tem certeza?" } %>
             <% end %>
           </div>
