@@ -9,24 +9,24 @@ RSpec.describe TicketStatus, type: :model do
     expect(duplicate_default.errors[:is_default]).to include("já existe um status padrão")
   end
 
-  it "does not allow the default opened status to be final" do
+  it "does not allow the default status to be final" do
     status = build(:ticket_status, name: "Aberto", is_default: true, is_final: true)
 
     expect(status).not_to be_valid
-    expect(status.errors[:is_final]).to include("não pode ser marcado para o status Aberto")
+    expect(status.errors[:is_final]).to include("não pode ser marcado para o status padrão")
   end
 
-  it "allows only Aberto to be the default status" do
+  it "allows the default status name to be edited" do
     status = build(:ticket_status, name: "Em andamento", is_default: true, is_final: false)
 
-    expect(status).not_to be_valid
-    expect(status.errors[:is_default]).to include("só pode ser marcado no status Aberto")
+    expect(status).to be_valid
   end
 
-  it "keeps Aberto marked as the default status" do
-    status = build(:ticket_status, name: "Aberto", is_default: false, is_final: false)
+  it "does not destroy the default status" do
+    status = create(:ticket_status, :opened_default)
 
-    expect(status).not_to be_valid
-    expect(status.errors[:is_default]).to include("deve permanecer marcado para o status Aberto")
+    expect(status.destroy).to be(false)
+    expect(status.errors[:base]).to include("O status padrão não pode ser excluído.")
+    expect(TicketStatus.exists?(status.id)).to be(true)
   end
 end

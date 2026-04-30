@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for?(:title) ? yield(:title) : "Condomínio Dunnas" %></title>
+    <title><%= content_for?(:title) ? yield(:title) : "Portal Condominial" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
@@ -14,7 +14,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
@@ -40,7 +39,7 @@
 
         <aside id="mobile-nav" class="fixed inset-y-0 left-0 z-50 flex w-72 -translate-x-full flex-col bg-gradient-to-b from-[#48377d] to-[#2a1d50] p-6 text-white shadow-2xl transition-transform duration-300 ease-out lg:hidden">
           <div class="mb-8">
-            <%= link_to "Condomínio Dunnas", root_path_for(current_user), class: "font-display text-2xl font-extrabold tracking-tight hover:text-violet-100 transition-colors duration-200" %>
+            <%= link_to "Portal Condominial", root_path_for(current_user), class: "font-display text-2xl font-extrabold tracking-tight hover:text-violet-100 transition-colors duration-200" %>
             <p class="mt-1 text-sm text-violet-200">Navegação rápida</p>
           </div>
 
@@ -55,12 +54,12 @@
 
         <aside id="desktop-nav" class="hidden w-72 flex-col bg-gradient-to-b from-[#48377d] to-[#2a1d50] p-6 text-white shadow-2xl transition-all duration-300 lg:sticky lg:top-0 lg:flex lg:h-screen lg:self-start">
           <div class="mb-10 desktop-nav-brand-full">
-            <%= link_to "Condomínio Dunnas", root_path_for(current_user), class: "font-display text-2xl font-extrabold tracking-tight hover:text-violet-100 transition-colors duration-200" %>
+            <%= link_to "Portal Condominial", root_path_for(current_user), class: "font-display text-2xl font-extrabold tracking-tight hover:text-violet-100 transition-colors duration-200" %>
             <p class="mt-1 text-sm text-violet-200">Painel de operações</p>
           </div>
 
           <div class="desktop-nav-brand-collapsed mb-8 hidden items-center justify-center">
-            <%= link_to root_path_for(current_user), class: "inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 text-white hover:bg-white/30", title: "Condomínio Dunnas" do %>
+            <%= link_to root_path_for(current_user), class: "inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 text-white hover:bg-white/30", title: "Portal Condominial" do %>
               <%= navigation_icon(:building, classes: "h-5 w-5") %>
             <% end %>
           </div>
@@ -137,7 +136,7 @@
     <% else %>
       <header class="border-b border-slate-200/80 bg-white/90 backdrop-blur">
         <div class="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <%= link_to "Condomínio Dunnas", unauthenticated_root_path, class: "font-display text-2xl font-extrabold tracking-tight text-slate-900" %>
+          <%= link_to "Portal Condominial", unauthenticated_root_path, class: "font-display text-2xl font-extrabold tracking-tight text-slate-900" %>
 
           <% unless devise_controller? %>
             <%= link_to "Entrar", new_user_session_path, class: "rounded-lg bg-[#5f46a6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#523b94]" %>

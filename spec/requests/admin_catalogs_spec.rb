@@ -54,6 +54,23 @@ RSpec.describe "Admin catalogs", type: :request do
     end
   end
 
+  describe "DELETE /ticket_types/:id" do
+    it "shows a friendly alert when the ticket type is linked to tickets" do
+      admin = create(:user, :administrator)
+      ticket_type = create(:ticket_type)
+      create(:ticket, ticket_type: ticket_type)
+      sign_in admin
+
+      expect do
+        delete ticket_type_path(ticket_type)
+      end.not_to change(TicketType, :count)
+
+      expect(response).to redirect_to(ticket_types_path)
+      follow_redirect!
+      expect(response.body).to include("Este tipo de chamado não pode ser excluído porque já está vinculado a um ou mais chamados.")
+    end
+  end
+
   describe "POST /ticket_statuses" do
     it "allows admin to create ticket status" do
       admin = create(:user, :administrator)
@@ -104,6 +121,22 @@ RSpec.describe "Admin catalogs", type: :request do
       expect(response).to have_http_status(:unprocessable_content)
       expect(response.body).to include("Nome não pode ficar em branco")
       expect(response.body).not_to include("Name não pode")
+    end
+  end
+
+  describe "DELETE /ticket_statuses/:id" do
+    it "does not allow the default status to be deleted" do
+      admin = create(:user, :administrator)
+      default_status = create(:ticket_status, :opened_default)
+      sign_in admin
+
+      expect do
+        delete ticket_status_path(default_status)
+      end.not_to change(TicketStatus, :count)
+
+      expect(response).to redirect_to(ticket_statuses_path)
+      follow_redirect!
+      expect(response.body).to include("Esse é um status padrão do sistema, não é permitido excluir. Você pode apenas editar o nome dele.")
     end
   end
 end

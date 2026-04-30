@@ -53,15 +53,17 @@ class TicketStatusesController < ApplicationController
   def destroy
     removed_status_snapshot = audit_snapshot_for(@ticket_status, exclude: %w[created_at updated_at])
 
-    @ticket_status.destroy!
+    if @ticket_status.destroy
+      audit_action(
+        action: "ticket_status.deleted",
+        auditable: @ticket_status,
+        context_data: removed_status_snapshot
+      )
 
-    audit_action(
-      action: "ticket_status.deleted",
-      auditable: @ticket_status,
-      context_data: removed_status_snapshot
-    )
-
-    redirect_to ticket_statuses_path, notice: "Status removido com sucesso.", status: :see_other
+      redirect_to ticket_statuses_path, notice: "Status excluído com sucesso.", status: :see_other
+    else
+      redirect_to ticket_statuses_path, alert: ticket_status_destroy_error, status: :see_other
+    end
   end
 
   private
@@ -72,5 +74,12 @@ class TicketStatusesController < ApplicationController
 
     def ticket_status_params
       params.require(:ticket_status).permit(:name, :is_default, :is_final)
+    end
+
+    def ticket_status_destroy_error
+      return "Esse é um status padrão do sistema, não é permitido excluir. Você pode apenas editar o nome dele." if @ticket_status.is_default?
+      return "Este status não pode ser excluído porque já está vinculado a um ou mais chamados." if @ticket_status.tickets.exists?
+
+      @ticket_status.errors.full_messages.to_sentence.presence || "Não foi possível excluir este status."
     end
 end
