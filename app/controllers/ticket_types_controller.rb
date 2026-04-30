@@ -53,15 +53,17 @@ class TicketTypesController < ApplicationController
   def destroy
     removed_type_snapshot = audit_snapshot_for(@ticket_type, exclude: %w[created_at updated_at])
 
-    @ticket_type.destroy!
+    if @ticket_type.destroy
+      audit_action(
+        action: "ticket_type.deleted",
+        auditable: @ticket_type,
+        context_data: removed_type_snapshot
+      )
 
-    audit_action(
-      action: "ticket_type.deleted",
-      auditable: @ticket_type,
-      context_data: removed_type_snapshot
-    )
-
-    redirect_to ticket_types_path, notice: "Tipo de chamado removido com sucesso.", status: :see_other
+      redirect_to ticket_types_path, notice: "Tipo de chamado excluído com sucesso.", status: :see_other
+    else
+      redirect_to ticket_types_path, alert: ticket_type_destroy_error, status: :see_other
+    end
   end
 
   private
@@ -72,5 +74,11 @@ class TicketTypesController < ApplicationController
 
     def ticket_type_params
       params.require(:ticket_type).permit(:title, :sla_hours, collaborator_ids: [])
+    end
+
+    def ticket_type_destroy_error
+      return "Este tipo de chamado não pode ser excluído porque já está vinculado a um ou mais chamados." if @ticket_type.tickets.exists?
+
+      @ticket_type.errors.full_messages.to_sentence.presence || "Não foi possível excluir este tipo de chamado."
     end
 end
