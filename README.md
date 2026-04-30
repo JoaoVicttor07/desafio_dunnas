@@ -1,4 +1,4 @@
-# 🏢 Desafio Dunnas — Sistema de Gestão de Chamados Condominiais
+# 🏢 Sistema de Gestão de Chamados Condominiais
 
 Sistema web para gestão de chamados em ambiente condominial, com controle de acesso por perfil, fluxo operacional com SLA, auditoria e rastreabilidade de ações.
 
@@ -462,7 +462,7 @@ O serviço web executa: `db:prepare`, `db:seed` e `bin/dev`.
 ### 10.5 Execução com Docker (produção)
 
 ```bash
-docker build -t desafio_dunnas:prod .
+docker build -t condominium-ticket-manager:prod .
 docker compose -f docker-compose.prod.yml up -d
 ```
 
@@ -553,13 +553,13 @@ Basta exportar as variáveis no shell (ou injetar no CI/CD) e executar o compose
 Exemplo (shell do servidor ou etapa CI):
 
 ```bash
-export APP_IMAGE=seu_usuario/desafio_dunnas:1.0.1
+export APP_IMAGE=seu_usuario/condominium-ticket-manager:1.0.1
 export APP_PORT=3000
 export RAILS_MASTER_KEY=...
 export SECRET_KEY_BASE=...
 export ACTIVE_STORAGE_SERVICE=local
 export POSTGRES_HOST=db
-export POSTGRES_DB=desafio_dunnas_production
+export POSTGRES_DB=condominium_ticket_manager_production
 export POSTGRES_USER=postgres
 export POSTGRES_PASSWORD=...
 export ADMIN_EMAIL=admin@seucondominio.com
@@ -739,5 +739,3 @@ Você pode usar imagens hospedadas no próprio repositório **ou** links externo
 Este repositório inclui o arquivo `MIT LICENSE`, indicando distribuição sob a licença MIT.
 
 ---
-
-Desenvolvido como solução para o desafio técnico da Dunnas, com foco em regras de negócio, segurança de acesso e rastreabilidade operacional.
