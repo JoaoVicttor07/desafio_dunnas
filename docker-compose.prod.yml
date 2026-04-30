@@ -21,15 +21,16 @@ services:
       db:
         condition: service_healthy
     environment:
-      RAILS_ENV: production
-      POSTGRES_HOST: db
+      RAILS_ENV: ${RAILS_ENV:-production}
+      PORT: ${PORT:-3000}
+      POSTGRES_HOST: ${POSTGRES_HOST:-db}
       POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
       POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
       RAILS_MASTER_KEY: ${RAILS_MASTER_KEY:?RAILS_MASTER_KEY is required}
       SECRET_KEY_BASE: ${SECRET_KEY_BASE:?SECRET_KEY_BASE is required}
-      RAILS_LOG_TO_STDOUT: "true"
-      RAILS_SERVE_STATIC_FILES: "true"
+      RAILS_LOG_TO_STDOUT: ${RAILS_LOG_TO_STDOUT:-true}
+      RAILS_SERVE_STATIC_FILES: ${RAILS_SERVE_STATIC_FILES:-true}
       RAILS_LOG_LEVEL: ${RAILS_LOG_LEVEL:-info}
       RAILS_MAX_THREADS: ${RAILS_MAX_THREADS:-5}
       REQUIRE_MASTER_KEY: ${REQUIRE_MASTER_KEY:-true}
@@ -39,8 +40,8 @@ services:
       ADMIN_EMAIL: ${ADMIN_EMAIL:?ADMIN_EMAIL is required}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD is required}
     ports:
-      - "${APP_PORT:-3000}:3000"
-    command: ["/bin/sh", "-c", "bundle exec rails db:migrate && bundle exec rails db:seed && ./bin/rails server -b 0.0.0.0 -p 3000"]
+      - "${APP_PORT:-3000}:${PORT:-3000}"
+    command: ["/bin/sh", "-c", "bundle exec rails db:migrate && bundle exec rails db:seed && ./bin/rails server -b 0.0.0.0 -p ${PORT:-3000}"]
     volumes:
       - app_storage:/rails/storage
 
