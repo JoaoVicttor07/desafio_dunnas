@@ -40,7 +40,6 @@ Sistema web para gestão de chamados em ambiente condominial, com controle de ac
   - [10.6 Arquivos Docker e seus papéis](#106-arquivos-docker-e-seus-papéis)
   - [10.7 Migrações e seeds](#107-migrações-e-seeds)
   - [10.8 Credenciais iniciais](#108-credenciais-iniciais)
-  - [10.9 Deploy publicado](#109-deploy-publicado)
 - [11. Armazenamento de anexos](#11-armazenamento-de-anexos)
 - [12. Testes](#12-testes)
   - [12.1 O que os testes cobrem](#121-o-que-os-testes-cobrem)
@@ -49,7 +48,6 @@ Sistema web para gestão de chamados em ambiente condominial, com controle de ac
 - [14. Contribuições](#14-contribuições)
 - [15. Imagens do projeto](#15-imagens-do-projeto)
   - [15.1 Galeria pública](#151-galeria-pública)
-  - [15.2 Evidência de performance em produção](#152-evidência-de-performance-em-produção)
 - [16. Licença](#16-licença)
 
 ---
@@ -611,9 +609,6 @@ Fallback (somente se variáveis não forem definidas):
 
 > Recomendação: sempre definir credenciais seguras para ambiente real.
 
-### 10.9 Deploy publicado
-
-- URL de acesso em produção: <https://jv.romeu.dev.br/>
 
 ---
 
@@ -733,16 +728,6 @@ As imagens servem como evidência visual de que as funcionalidades descritas ao 
 | [![Status de chamado](https://drive.google.com/thumbnail?id=1yTyqQ1NXlr3Cumr30WGoeiRb72eSPZXP&sz=w1000)](https://drive.google.com/file/d/1yTyqQ1NXlr3Cumr30WGoeiRb72eSPZXP/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/1yTyqQ1NXlr3Cumr30WGoeiRb72eSPZXP/view?usp=sharing) |
 | [![Auditoria (lista)](https://drive.google.com/thumbnail?id=1x8Vmxn8d9MYnj4M2u369vgGN_J1OLD0m&sz=w1000)](https://drive.google.com/file/d/1x8Vmxn8d9MYnj4M2u369vgGN_J1OLD0m/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/1x8Vmxn8d9MYnj4M2u369vgGN_J1OLD0m/view?usp=sharing) |
 | [![Auditoria (detalhe)](https://drive.google.com/thumbnail?id=1xIB22iAiiado9ByFmsn00gRhaP90t9JM&sz=w1000)](https://drive.google.com/file/d/1xIB22iAiiado9ByFmsn00gRhaP90t9JM/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/1xIB22iAiiado9ByFmsn00gRhaP90t9JM/view?usp=sharing) |
-
-### 15.2 Evidência de performance em produção
-
-Esta subseção registra um snapshot operacional do ambiente em produção para complementar a validação funcional das telas. O objetivo é evidenciar comportamento de consumo de recursos (CPU, memória, rede e I/O) durante execução real da aplicação publicada.
-
-| Imagem | Link |
-|---|---|
-| [![Performance em produção](https://drive.google.com/thumbnail?id=1aA5d3H0zKcUfoJAESsf2hbrTUnuWla3U&sz=w1000)](https://drive.google.com/file/d/1aA5d3H0zKcUfoJAESsf2hbrTUnuWla3U/view?usp=sharing) | [Visualizar](https://drive.google.com/file/d/1aA5d3H0zKcUfoJAESsf2hbrTUnuWla3U/view?usp=sharing) |
-
-> Performance em produção (jv.romeu.dev.br) — coleta em 17/04/2026 08:00 (UTC-3), cenário: uso normal (sem teste de estresse), com CPU próxima de 0%, memória ~130 MB e I/O/rede estáveis.
 
 ---
 
